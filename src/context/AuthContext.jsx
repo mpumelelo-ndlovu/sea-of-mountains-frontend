@@ -1,5 +1,5 @@
 // FILE: src/context/AuthContext.jsx
-// FINAL CORRECTED VERSION
+// FINAL CORRECTED VERSION: Ensures axios uses the production API URL.
 
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,8 +8,10 @@ import { toastError } from '../utils/toastService';
 
 const AuthContext = createContext();
 
+// This is the crucial fix: The API client is now explicitly configured
+// to use the base URL from the environment variables you set on Netlify.
 export const api = axios.create({
-    baseURL: '', // Use relative paths for the proxy
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     withCredentials: true,
     xsrfCookieName: 'csrftoken',
     xsrfHeaderName: 'X-CSRFToken',
