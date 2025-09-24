@@ -1,5 +1,5 @@
 // FILE: src/pages/RegisterPage.jsx
-// FINAL CORRECTED VERSION: Points to the correct registration API endpoint.
+// FINAL CORRECTED VERSION: Points to the correct /registration/ API endpoint.
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -45,8 +45,8 @@ function RegisterPage() {
 
         try {
             // --- THIS IS THE FIX ---
-            // The URL is now '/api/auth/register/' which matches the backend urls.py
-            const response = await api.post('/api/auth/register/', {
+            // The URL is now '/api/auth/registration/' which matches the backend urls.py
+            const response = await api.post('/api/auth/registration/', {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
