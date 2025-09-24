@@ -1,5 +1,5 @@
 // FILE: src/pages/RegisterPage.jsx
-// FINAL CORRECTED VERSION: Adds reCAPTCHA integration.
+// FINAL CORRECTED VERSION: Points to the correct registration API endpoint.
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -44,13 +44,14 @@ function RegisterPage() {
         }
 
         try {
-            const response = await api.post('/api/auth/registration/', {
+            // --- THIS IS THE FIX ---
+            // The URL is now '/api/auth/register/' which matches the backend urls.py
+            const response = await api.post('/api/auth/register/', {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
                 phone_number: formData.phone_number,
                 password: formData.password,
-                password2: formData.password2,
                 recaptcha_token: recaptchaToken,
             });
 
