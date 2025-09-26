@@ -1,10 +1,11 @@
 // FILE: src/pages/DashboardPage.jsx
-// FINAL REVISED VERSION: Refactors data fetching and adds robust loading/error handling.
+// FINAL REVISED VERSION: Fixes the missing import for the background image.
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toastSuccess, toastError } from '../utils/toastService';
+import applicationBanner from '../assets/hero-background.jpg'; // THIS IS THE FIX
 import {
     ClockIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, DocumentTextIcon,
     BuildingOfficeIcon, BanknotesIcon, HomeModernIcon, MegaphoneIcon, ExclamationTriangleIcon,
@@ -750,29 +751,35 @@ function DashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
                     
                     <div className="lg:col-span-1 mb-8 lg:mb-0">
-                        <div className="p-8 bg-white rounded-2xl shadow-lg">
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-800">
-                                <span className="font-light text-gray-500">Welcome,</span>
-                                <br/>
-                                {user?.first_name || 'Student'}!
-                            </h1>
-                            <p className="text-md text-gray-600 mt-4">This is your personal dashboard. Here you can track your application and tenancy details.</p>
-                            
-                            <div className="mt-8 border-t pt-6 space-y-4 text-sm">
-                                <div className="flex items-center text-gray-600">
-                                    <EnvelopeIcon className="h-5 w-5 mr-3 text-ocean-blue" />
-                                    <span>{user?.email}</span>
-                                </div>
-                                <div className="flex items-center text-gray-600">
-                                    <PhoneIcon className="h-5 w-5 mr-3 text-ocean-blue" />
-                                    <span>{displayPhoneNumber || 'Not provided'}</span>
-                                </div>
-                                {displayStudentNumber && (
-                                    <div className="flex items-center text-gray-600">
-                                        <AcademicCapIcon className="h-5 w-5 mr-3 text-ocean-blue" />
-                                        <span>{displayStudentNumber}</span>
+                        {/* --- THIS IS THE FIX --- */}
+                        <div className="relative p-8 rounded-2xl shadow-lg overflow-hidden bg-ocean-blue">
+                             <div className="absolute inset-0">
+                                <img src={applicationBanner} alt="Abstract background" className="w-full h-full object-cover opacity-20"/>
+                            </div>
+                            <div className="relative">
+                                <h1 className="text-4xl md:text-5xl font-bold text-white">
+                                    <span className="font-light text-gray-200">Welcome,</span>
+                                    <br/>
+                                    {user?.first_name || 'Student'}!
+                                </h1>
+                                <p className="text-md text-gray-200 mt-4">This is your personal dashboard. Here you can track your application and tenancy details.</p>
+                                
+                                <div className="mt-8 border-t border-white/20 pt-6 space-y-4 text-sm">
+                                    <div className="flex items-center text-gray-200">
+                                        <EnvelopeIcon className="h-5 w-5 mr-3 text-white/80" />
+                                        <span>{user?.email}</span>
                                     </div>
-                                )}
+                                    <div className="flex items-center text-gray-200">
+                                        <PhoneIcon className="h-5 w-5 mr-3 text-white/80" />
+                                        <span>{displayPhoneNumber || 'Not provided'}</span>
+                                    </div>
+                                    {displayStudentNumber && (
+                                        <div className="flex items-center text-gray-200">
+                                            <AcademicCapIcon className="h-5 w-5 mr-3 text-white/80" />
+                                            <span>{displayStudentNumber}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

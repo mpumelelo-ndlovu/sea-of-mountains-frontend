@@ -1,118 +1,89 @@
-/* Import the Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* src/index.css */
 
-/* Apply base Tailwind styles */
+/* 1. Include Tailwind's base styles, components, and utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Define CSS variables and global styles */
+/* 2. Define the custom font family and apply it to the base html layer */
 @layer base {
-  :root {
-    --ocean-blue: #005792;
-    --mountain-tan: #9d6a51;
-    --deep-space: #0a0e27;
-    --neon-cyan: #00d4ff;
-    --neon-purple: #8b5cf6;
-  }
-  
-  html {
-    scroll-behavior: smooth;
+  @font-face {
+    font-family: 'San Francisco';
+    src: url('./assets/fonts/San Francisco Text Medium.woff2') format('woff2');
+    font-weight: 500; /* Medium weight */
+    font-style: normal;
   }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--deep-space);
-    color: #ffffff;
+  @font-face {
+    font-family: 'San Francisco';
+    src: url('./assets/fonts/San Francisco Text Heavy.woff2') format('woff2');
+    font-weight: 900; /* Heavy weight */
+    font-style: normal;
+  }
+
+  html {
+    font-family: 'San Francisco', system-ui, Avenir, Helvetica, Arial, sans-serif;
   }
 }
 
-/* Custom utility classes and animations */
-@layer utilities {
-  .glass-morphism {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+/* 3. Add custom animation styles used in the application */
+.checkmark__circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #7ac142;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
 
-  .glow-effect {
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-  }
+.checkmark {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    margin: 10% auto;
+    box-shadow: inset 0px 0px 0px #7ac142;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
 
-  .text-gradient {
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.checkmark__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
 
-  .neural-bg {
-    background: 
-      radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(157, 106, 81, 0.1) 0%, transparent 50%);
-  }
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
 
-  .floating {
-    animation: float 6s ease-in-out infinite;
-  }
+@keyframes scale {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px #7ac142;
+    }
+}
 
-  .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite alternate;
-  }
+/* --- THIS IS THE NEW ANIMATION FOR THE ROTATING TEXT --- */
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; transform: translateY(10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+}
 
-  @keyframes pulse-glow {
-    from { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
-    to { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); }
-  }
-
-  .grid-pattern {
-    background-image: 
-      linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-  }
-
-  .holographic-card {
-    background: linear-gradient(135deg, 
-      rgba(0, 87, 146, 0.2) 0%, 
-      rgba(157, 106, 81, 0.2) 50%, 
-      rgba(0, 212, 255, 0.2) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .holographic-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 70%
-    );
-    transform: rotate(45deg);
-    transition: all 0.5s;
-    opacity: 0;
-  }
-
-  .holographic-card:hover::before {
-    opacity: 1;
-    animation: shimmer 0.5s ease-in-out;
-  }
-
-  @keyframes shimmer {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-  }
+.rotating-text-enter {
+  animation: fadeInOut 3s ease-in-out infinite;
 }

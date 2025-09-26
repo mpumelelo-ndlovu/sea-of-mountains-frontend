@@ -1,11 +1,11 @@
 // FILE: src/pages/ApplicationPage.jsx
-// FINAL CORRECTED VERSION: Fixes the race condition to ensure the success modal is always visible.
+// FINAL CORRECTED VERSION: Adds the logic to auto-populate date of birth from the ID number.
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import InputField from '../components/InputField.jsx';
-import applicationBanner from '../assets/hero-background.jpg'; // Import the image for the banner
+import applicationBanner from '../assets/hero-background.jpg';
 import {
     DocumentTextIcon, UserCircleIcon, AcademicCapIcon,
     UsersIcon, BanknotesIcon, HeartIcon, ArrowUpTrayIcon,
@@ -121,14 +121,30 @@ function ApplicationPage() {
         };
         fetchRoomTypes();
     }, [api]);
-    
-    // --- THIS IS THE FIX ---
-    // The logic is now split. The `handleSubmit` function only sets the success status.
-    // This `useEffect` hook then handles the delayed navigation.
+
+    // --- THIS IS THE NEW LOGIC ---
+    // Automatically populates the date of birth from a South African ID number.
+    useEffect(() => {
+        if (formData.nationality === 'South African' && /^\d{13}$/.test(formData.id_number)) {
+            const year = parseInt(formData.id_number.substring(0, 2), 10);
+            const month = formData.id_number.substring(2, 4);
+            const day = formData.id_number.substring(4, 6);
+
+            const currentYear = new Date().getFullYear() % 100;
+            const fullYear = year > currentYear ? 1900 + year : 2000 + year;
+
+            const newDob = `${fullYear}-${month}-${day}`;
+
+            // Check if the generated date is a valid date before setting it
+            if (!isNaN(new Date(newDob))) {
+                setFormData(prev => ({ ...prev, date_of_birth: newDob }));
+            }
+        }
+    }, [formData.id_number, formData.nationality]);
+
     useEffect(() => {
         if (submitStatus === 'success') {
             const timer = setTimeout(async () => {
-                // Refresh data *just before* navigating away
                 await fetchDashboardData(); 
                 navigate('/dashboard');
             }, 5000);
@@ -136,7 +152,6 @@ function ApplicationPage() {
             return () => clearTimeout(timer);
         }
     }, [submitStatus, navigate, fetchDashboardData]);
-
 
     const handleChange = useCallback((e) => {
         const { name, value, type, checked, files } = e.target;
@@ -196,7 +211,6 @@ function ApplicationPage() {
                     }
                 }
             }
-
         } else if (currentStep === 2) {
             if (!formData.spu_student_number) {
                 errors.spu_student_number = 'SPU Student Number is required.';
@@ -330,7 +344,6 @@ function ApplicationPage() {
 
             if (response.status === 201) {
                 setSubmitMessage('You will be redirected to your dashboard to track your application status...');
-                // DO NOT fetch data here. Let the useEffect handle it before navigation.
                 setSubmitStatus('success');
             }
         } catch (error) {

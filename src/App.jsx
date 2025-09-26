@@ -1,4 +1,5 @@
 // FILE: src/App.jsx
+// FINAL REVISED VERSION: Fixes the invalid comment syntax causing the compiler error.
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
@@ -7,13 +8,13 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './utils/ProtectedRoute';
 import ApplicationRouteGuard from './utils/ApplicationRouteGuard.jsx';
-// Corrected import from CookieNotice.jsx
-import CookieNotice from './components/CookieNotice.jsx';
+import ConsentBanner from './components/ConsentBanner.jsx';
 import logo from './assets/logo.svg';
 import {
   MapPinIcon, ShieldCheckIcon, CubeTransparentIcon, UserGroupIcon, WifiIcon, HomeModernIcon,
   BookOpenIcon, FireIcon, ReceiptRefundIcon, LockClosedIcon, ChatBubbleLeftRightIcon,
-  TicketIcon, ChevronRightIcon, Bars3Icon, XMarkIcon, ArrowPathIcon
+  TicketIcon, ChevronRightIcon, Bars3Icon, XMarkIcon, ArrowPathIcon,
+  HomeIcon, InformationCircleIcon, BuildingLibraryIcon, PhoneIcon, ArrowRightOnRectangleIcon, UserCircleIcon, DocumentTextIcon, ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import AboutUs from './pages/AboutUs';
 import RoomsPage from './pages/RoomsPage';
@@ -29,28 +30,47 @@ import NotFoundPage from './pages/NotFoundPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SecurityPolicyPage from './pages/SecurityPolicyPage';
 
-// --- Reusable Animated Component ---
-const AnimatedSection = ({ children, className, style }) => {
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px',
-  });
+const RotatingText = ({ words, period = 2000 }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentWord, setCurrentWord] = useState(words[0]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    let ticker;
+    if (isDeleting) {
+      ticker = setTimeout(() => { setText(currentWord.substring(0, text.length - 1)); }, 100);
+    } else {
+      ticker = setTimeout(() => { setText(currentWord.substring(0, text.length + 1)); }, 150);
+    }
+    if (!isDeleting && text === currentWord) {
+      setTimeout(() => setIsDeleting(true), period);
+    } else if (isDeleting && text === '') {
+      setIsDeleting(false);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }
+    return () => clearTimeout(ticker);
+  }, [text, isDeleting, currentWord, words, period]);
+
+  useEffect(() => { setCurrentWord(words[currentIndex]); }, [currentIndex, words]);
 
   return (
-    <section
-      ref={ref}
-      className={`${className} transition-all duration-1000 ease-in-out ${
-        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-      }`}
-      style={style}
-    >
+    <span className="bg-mountain-tan text-white px-3 py-1 rounded-lg">
+      {text}
+      <span className="animate-pulse">|</span>
+    </span>
+  );
+};
+
+const AnimatedSection = ({ children, className, style }) => {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  return (
+    <section ref={ref} className={`${className} transition-all duration-1000 ease-in-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={style}>
       {children}
     </section>
   );
 };
 
-// Placeholder data for sections
 const keyBenefits = [
   { id: 1, Icon: MapPinIcon, title: 'Prime Location', description: 'Perfectly situated for Sol Plaatje University students, with accommodation situated directly on-campus.' },
   { id: 2, Icon: ShieldCheckIcon, title: 'Safe & Secure', description: '24/7 security, CCTV, and secure access control for your peace of mind.' },
@@ -59,14 +79,10 @@ const keyBenefits = [
 ];
 
 const amenitiesForHomepage = [
-  { name: 'High-Speed Wi-Fi', Icon: WifiIcon },
-  { name: 'Furnished Rooms', Icon: HomeModernIcon },
-  { name: 'Study Lounges', Icon: BookOpenIcon },
-  { name: 'Communal Kitchens', Icon: FireIcon },
-  { name: 'Laundry Facilities', Icon: ReceiptRefundIcon },
-  { name: '24/7 Security', Icon: LockClosedIcon },
-  { name: 'Social Spaces', Icon: ChatBubbleLeftRightIcon },
-  { name: 'Parking Available', Icon: TicketIcon },
+  { name: 'High-Speed Wi-Fi', Icon: WifiIcon }, { name: 'Furnished Rooms', Icon: HomeModernIcon },
+  { name: 'Study Lounges', Icon: BookOpenIcon }, { name: 'Communal Kitchens', Icon: FireIcon },
+  { name: 'Laundry Facilities', Icon: ReceiptRefundIcon }, { name: '24/7 Security', Icon: LockClosedIcon },
+  { name: 'Social Spaces', Icon: ChatBubbleLeftRightIcon }, { name: 'Parking Available', Icon: TicketIcon },
 ];
 
 const roomTypesDataForHomepage = [
@@ -74,64 +90,30 @@ const roomTypesDataForHomepage = [
   { name: 'The Sharing Room', description: 'A comfortable and spacious twin sharing room, perfect for making connections, complete with seperateindividual study areas.', imageUrl: 'https://placehold.co/600x400/9d6a51/FFFFFF?text=Sharing+Room', link: '/rooms#sharing-room' },
 ];
 
-// ScrollToTop component
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }
 
-// --- HomePage Component ---
 function HomePage() {
   const heroImageUrl = '/hero-background.jpg';
   const { user, hasApplication, loading } = useAuth();
-
-  const subtleBgPattern = {
-    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-  };
+  const applicationWords = ["Apply Now", "for 2026", "Secure Your Spot"];
+  const subtleBgPattern = { backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` };
 
   return (
     <>
-      <section
-        id="hero"
-        style={{ backgroundImage: `url(${heroImageUrl})` }}
-        className="bg-cover bg-center h-[calc(100vh-72px)] text-white flex flex-col items-center justify-center relative overflow-hidden"
-      >
+      <section id="hero" style={{ backgroundImage: `url(${heroImageUrl})` }} className="bg-cover bg-center h-[calc(100vh-72px)] text-white flex flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-0"></div>
-        <div className="relative z-10 text-center p-6 max-w-3xl">
-          <h1 className="text-3xl md:text-6xl lg:text-5xl font-bold mb-6 leading-tight text-shadow-lg animate-zoom-in">
-            Experience Premium Student Accommodation in 2026.
-          </h1>
-          <p className="text-xl md:text-2xl mb-10 text-gray-100 text-shadow-md animate-zoom-in animation-delay-200">
-            Accredited Off-Campus accommodation, located at the heart of Campus.
-          </p>
-          <div className="space-y-4 sm:space-y-0 sm:space-x-4 animate-zoom-in animation-delay-400">
-            <Link
-              to="/rooms"
-              className="inline-block bg-ocean-blue hover:bg-blue-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
-            >
-              Explore Rooms
-            </Link>
-
-            {user && !loading && hasApplication && (
-                 <Link
-                    to="/dashboard"
-                    className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
-                  >
-                    View Dashboard
-                </Link>
-            )}
-
-            {(!user || (user && !loading && !hasApplication)) && (
-              <Link
-                to="/apply"
-                className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
-              >
-                Apply Today
-              </Link>
-            )}
+        <div className="relative z-10 text-center p-6 max-w-4xl">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-shadow-lg animate-zoom-in">Experience Premium Student Accommodation in Kimberley.</h1>
+          <div className="mt-6 text-3xl md:text-5xl font-bold text-shadow-lg animate-zoom-in animation-delay-200"><RotatingText words={applicationWords} /></div>
+          <p className="text-xl md:text-2xl mt-8 mb-10 text-gray-100 text-shadow-md animate-zoom-in animation-delay-400">Accredited Off-Campus accommodation, located at the heart of Campus.</p>
+          <div className="space-y-4 sm:space-y-0 sm:space-x-4 animate-zoom-in animation-delay-600">
+            <Link to="/rooms" className="inline-block bg-ocean-blue hover:bg-blue-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Explore Rooms</Link>
+            {user && !loading && hasApplication && (<Link to="/dashboard" className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">View Dashboard</Link>)}
+            {(!user || (user && !loading && !hasApplication)) && (<Link to="/apply" className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Apply Today</Link>)}
           </div>
         </div>
       </section>
@@ -185,6 +167,14 @@ function AppContent() {
     setIsMenuOpen(false);
     navigate('/');
   };
+  
+  const navLinks = [
+    { to: "/", text: "Home", Icon: HomeIcon },
+    { to: "/about", text: "About Us", Icon: InformationCircleIcon },
+    { to: "/rooms", text: "Rooms", Icon: HomeModernIcon },
+    { to: "/amenities", text: "Amenities", Icon: BuildingLibraryIcon },
+    { to: "/contact", text: "Contact", Icon: PhoneIcon },
+  ];
 
   if (loading) {
     return (
@@ -197,10 +187,6 @@ function AppContent() {
     );
   }
   
-  // This logic is removed because it's now handled by ProtectedRoute
-  // if (user && user.is_staff) { ... }
-
-  // --- Regular user and guest view ---
   return (
     <>
       <ScrollToTop />
@@ -212,11 +198,9 @@ function AppContent() {
               <img src={logo} alt="Sea of Mountains Logo" className="h-12 w-auto" />
             </Link>
             <div className="hidden md:flex items-center space-x-6 text-sm">
-              <Link to="/" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Home</Link>
-              <Link to="/about" className="hover:text-mountain-tan transition-colors duration-300 font-medium">About Us</Link>
-              <Link to="/rooms" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Rooms</Link>
-              <Link to="/amenities" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Amenities</Link>
-              <Link to="/contact" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Contact</Link>
+              {navLinks.map(link => (
+                <Link key={link.text} to={link.to} className="hover:text-mountain-tan transition-colors duration-300 font-medium">{link.text}</Link>
+              ))}
               <div className="w-px h-6 bg-white/20"></div>
               {user ? (
                 <>
@@ -229,30 +213,30 @@ function AppContent() {
             <div className="md:hidden"><button onClick={() => setIsMenuOpen(true)} className="text-white focus:outline-none"><Bars3Icon className="w-8 h-8" /></button></div>
           </div>
         </nav>
-        <div className={`fixed inset-0 bg-ocean-blue z-50 transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}>
-          <div className="flex justify-end p-6"><button onClick={() => setIsMenuOpen(false)} className="text-white"><XMarkIcon className="w-8 w-8" /></button></div>
-          <div className="flex flex-col items-center justify-center h-full -mt-16">
+        <div className={`fixed inset-0 bg-ocean-blue z-50 flex flex-col transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex justify-between items-center p-6 border-b border-white/20">
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>
+              <img src={logo} alt="Sea of Mountains Logo" className="h-10 w-auto" />
+            </Link>
+            <button onClick={() => setIsMenuOpen(false)} className="text-white"><XMarkIcon className="w-8 h-8" /></button>
+          </div>
+          <div className="flex flex-col flex-grow justify-center items-center -mt-16 space-y-2 px-6">
+            {user && (<div className={`w-full text-center p-4 mb-4 transition-transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-10'}`} style={{ transitionDelay: '100ms' }}><UserCircleIcon className="h-16 w-16 mx-auto text-white/50 mb-2"/><p className="text-xl font-semibold text-white">Welcome, {user.first_name}!</p></div>)}
+            {navLinks.map((link, index) => (<Link key={link.to} to={link.to} className={`w-full text-left text-2xl text-white font-bold py-4 px-4 rounded-lg flex items-center hover:bg-white/10 transition-all duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-10'}`} style={{ transitionDelay: `${150 + index * 50}ms` }} onClick={() => setIsMenuOpen(false)}><link.Icon className="w-7 h-7 mr-4 text-white/80"/>{link.text}</Link>))}
+          </div>
+          <div className={`p-6 border-t border-white/20 transition-transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-10'}`} style={{ transitionDelay: '400ms' }}>
             {user ? (
-              <>
-                <span className="text-lg text-gray-300 mb-4">Welcome, {user.first_name}!</span>
-                <Link to="/dashboard" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                {!loading && !hasApplication && (<Link to="/apply" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Apply Now</Link>)}
-                <div className="w-2/3 h-px bg-white/20 my-3"></div>
-                <button onClick={handleLogout} className="text-2xl text-white font-bold py-3">Logout</button>
-              </>
+               <div className="space-y-3">
+                 {!loading && !hasApplication && (<Link to="/apply" className="w-full flex items-center justify-center text-center bg-mountain-tan text-white py-3 px-6 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}><DocumentTextIcon className="w-6 h-6 mr-2"/> Apply Now</Link>)}
+                  <Link to="/dashboard" className="w-full flex items-center justify-center text-center bg-white/10 text-white py-3 px-6 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}><UserCircleIcon className="w-6 h-6 mr-2"/> My Dashboard</Link>
+                  <button onClick={handleLogout} className="w-full flex items-center justify-center text-center bg-transparent text-white py-3 px-6 rounded-lg text-lg font-bold"><ArrowLeftOnRectangleIcon className="w-6 h-6 mr-2"/> Logout</button>
+               </div>
             ) : (
-              <>
-                <Link to="/" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Home</Link>
-                <Link to="/about" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>About Us</Link>
-                <Link to="/rooms" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Rooms</Link>
-                <Link to="/amenities" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Amenities</Link>
-                <Link to="/contact" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-                <div className="w-2/3 h-px bg-white/20 my-3"></div>
-                <Link to="/login" className="text-2xl text-white font-bold py-3" onClick={() => setIsMenuOpen(false)}>Login</Link>
-                <Link to="/register" className="mt-4 bg-mountain-tan text-white py-3 px-8 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Register</Link>
-              </>
+              <div className="space-y-3">
+                <Link to="/apply" className="w-full flex items-center justify-center text-center bg-mountain-tan text-white py-3 px-6 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}><DocumentTextIcon className="w-6 h-6 mr-2"/> Apply Now</Link>
+                <Link to="/login" className="w-full flex items-center justify-center text-center bg-white/10 text-white py-3 px-6 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}><ArrowRightOnRectangleIcon className="w-6 h-6 mr-2"/> Login</Link>
+              </div>
             )}
-            {!user && (<Link to="/apply" className="mt-4 bg-mountain-tan text-white py-3 px-8 rounded-lg text-lg font-bold" onClick={() => setIsMenuOpen(false)}>Apply Now</Link>)}
           </div>
         </div>
         <main className="flex-grow">
@@ -272,7 +256,6 @@ function AppContent() {
             <Route path="/dashboard" element={<ProtectedRoute />}>
               <Route index element={<DashboardPage />} />
             </Route>
-            {/* Admin routes are removed from here */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
@@ -313,7 +296,7 @@ function AppContent() {
             </div>
           </div>
         </footer>
-        <CookieNotice />
+        <ConsentBanner />
       </div>
     </>
   );

@@ -1,8 +1,10 @@
-// src/components/CookieNotice.jsx
+// FILE: src/components/ConsentBanner.jsx
+// This is the renamed CookieNotice component to avoid ad-blocker issues.
+
 import React, { useState, useEffect } from 'react';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
-function CookieNotice() {
+function ConsentBanner() {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -53,4 +55,4 @@ function CookieNotice() {
     );
 }
 
-export default CookieNotice;
+export default ConsentBanner;
