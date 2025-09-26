@@ -109,7 +109,7 @@ function HomePage() {
         <div className="relative z-10 text-center p-6 max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight text-shadow-lg animate-zoom-in">Experience Premium Student Accommodation in Kimberley.</h1>
           <div className="mt-6 text-3xl md:text-5xl font-bold text-shadow-lg animate-zoom-in animation-delay-200"><RotatingText words={applicationWords} /></div>
-          <p className="text-xl md:text-2xl mt-8 mb-10 text-gray-100 text-shadow-md animate-zoom-in animation-delay-400">Accredited Off-Campus accommodation, located at the heart of Campus.</p>
+          <p className="text-xl md:text-2xl mt-8 mb-10 text-gray-100 text-shadow-md animate-zoom-in animation-delay-400">Sol Plaatje University Accredited Off-Campus accommodation, located at the heart of Campus.</p>
           <div className="space-y-4 sm:space-y-0 sm:space-x-4 animate-zoom-in animation-delay-600">
             <Link to="/rooms" className="inline-block bg-ocean-blue hover:bg-blue-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Explore Rooms</Link>
             {user && !loading && hasApplication && (<Link to="/dashboard" className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">View Dashboard</Link>)}
