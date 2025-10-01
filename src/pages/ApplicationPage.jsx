@@ -1,5 +1,5 @@
 // FILE: src/pages/ApplicationPage.jsx
-// FINAL CORRECTED VERSION: Adds the logic to auto-populate date of birth from the ID number.
+// FINAL REVISED VERSION: Fixes the stepper layout on mobile devices.
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,31 +15,33 @@ import {
 const nationalities = [ "South African", "Afghan", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Antiguans", "Argentinean", "Armenian", "Australian", "Austrian", "Azerbaijani", "Bahamian", "Bahraini", "Bangladeshi", "Barbadian", "Barbudans", "Batswana", "Belarusian", "Belgian", "Belizean", "Beninese", "Bhutanese", "Bolivian", "Bosnian", "Brazilian", "British", "Bruneian", "Bulgarian", "Burkinabe", "Burmese", "Burundian", "Cambodian", "Cameroonian", "Canadian", "Cape Verdean", "Central African", "Chadian", "Chilean", "Chinese", "Colombian", "Comoran", "Congolese", "Costa Rican", "Croatian", "Cuban", "Cypriot", "Czech", "Danish", "Djibouti", "Dominican", "Dutch", "East Timorese", "Ecuadoreann", "Egyptian", "Emirian", "Equatorial Guinean", "Eritrean", "Estonian", "Ethiopian", "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian", "German", "Ghanaian", "Greek", "Grenadian", "Guatemalan", "Guinea-Bissauan", "Guinean", "Guyanese", "Haitian", "Herzegovinian", "Honduran", "Hungarian", "I-Kiribati", "Icelander", "Indian", "Indonesian", "Iranian", "Iraqi", "Irish", "Israeli", "Italian", "Ivorian", "Jamaican", "Japanese", "Jordanian", "Kazakhstani", "Kenyan", "Kittian and Nevisian", "Kuwaiti", "Kyrgyz", "Laotian", "Latvian", "Lebanese", "Liberian", "Libyan", "Liechtensteiner", "Lithuanian", "Luxembourger", "Macedonian", "Malagasy", "Malawian", "Malaysian", "Maldivan", "Malian", "Maltese", "Marshallese", "Mauritanian", "Mauritian", "Mexican", "Micronesian", "Moldovan", "Monacan", "Mongolian", "Moroccan", "Mosotho", "Motswana", "Mozambican", "Namibian", "Nauruan", "Nepalese", "New Zealander", "Nicaraguan", "Nigerian", "Nigerien", "North Korean", "Northern Irish", "Norwegian", "Omani", "Pakistani", "Palauan", "Panamanian", "Papua New Guinean", "Paraguayan", "Peruvian", "Polish", "Portuguese", "Qatari", "Romanian", "Russian", "Rwandan", "Saint Lucian", "Salvadoran", "Samoan", "San Marinese", "Sao Tomean", "Saudi", "Scottish", "Senegalese", "Serbian", "Seychellois", "Sierra Leonean", "Singaporean", "Slovakian", "Slovenian", "Solomon Islander", "Somali", "South Korean", "Spanish", "Sri Lankan", "Sudanese", "Surinamer", "Swazi", "Swedish", "Swiss", "Syrian", "Taiwanese", "Tajik", "Tanzanian", "Thai", "Togolese", "Tongan", "Trinidadian or Tobagonian", "Tunisian", "Turkish", "Tuvaluan", "Ugandan", "Ukrainian", "Uruguayan", "Uzbekistani", "Venezuelan", "Vietnamese", "Welsh", "Yemenite", "Zambian", "Zimbabwean"];
 
 const steps = [
-  { id: 1, name: 'Personal', icon: UserCircleIcon },
-  { id: 2, name: 'Academic & Room', icon: AcademicCapIcon },
-  { id: 3, name: 'Guardian', icon: UsersIcon },
-  { id: 4, name: 'Funding', icon: BanknotesIcon },
-  { id: 5, name: 'Medical & Vehicle', icon: HeartIcon },
-  { id: 6, name: 'Documents', icon: ArrowUpTrayIcon },
+    { id: 1, name: 'Personal', icon: UserCircleIcon },
+    { id: 2, name: 'Academic & Room', icon: AcademicCapIcon },
+    { id: 3, name: 'Guardian', icon: UsersIcon },
+    { id: 4, name: 'Funding', icon: BanknotesIcon },
+    { id: 5, name: 'Medical & Vehicle', icon: HeartIcon },
+    { id: 6, name: 'Documents', icon: ArrowUpTrayIcon },
 ];
 
 const ProgressBar = ({ currentStep }) => (
     <nav aria-label="Progress">
-        <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+        {/* THIS IS THE FIX: Changed to a flex layout with spacing */}
+        <ol role="list" className="flex space-x-8">
             {steps.map((step) => (
-                <li key={step.name} className="md:flex-1">
+                <li key={step.name} className="flex-1 min-w-[100px]">
                     {currentStep > step.id ? (
-                        <div className="group flex w-full flex-col border-l-4 border-ocean-blue py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                            <span className="text-sm font-medium text-ocean-blue transition-colors ">{`Step ${step.id}`}</span>
+                        // Use top border for all screen sizes for consistency
+                        <div className="group flex w-full flex-col border-t-4 border-ocean-blue py-2 transition-colors">
+                            <span className="text-sm font-medium text-ocean-blue transition-colors">{`Step ${step.id}`}</span>
                             <span className="text-sm font-medium">{step.name}</span>
                         </div>
                     ) : currentStep === step.id ? (
-                        <div className="flex w-full flex-col border-l-4 border-ocean-blue py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" aria-current="step">
+                        <div className="flex w-full flex-col border-t-4 border-ocean-blue py-2" aria-current="step">
                             <span className="text-sm font-medium text-ocean-blue">{`Step ${step.id}`}</span>
                             <span className="text-sm font-medium">{step.name}</span>
                         </div>
                     ) : (
-                        <div className="group flex h-full w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                        <div className="group flex h-full w-full flex-col border-t-4 border-gray-200 py-2 transition-colors">
                             <span className="text-sm font-medium text-gray-500 transition-colors">{`Step ${step.id}`}</span>
                             <span className="text-sm font-medium">{step.name}</span>
                         </div>
@@ -122,8 +124,6 @@ function ApplicationPage() {
         fetchRoomTypes();
     }, [api]);
 
-    // --- THIS IS THE NEW LOGIC ---
-    // Automatically populates the date of birth from a South African ID number.
     useEffect(() => {
         if (formData.nationality === 'South African' && /^\d{13}$/.test(formData.id_number)) {
             const year = parseInt(formData.id_number.substring(0, 2), 10);
@@ -135,7 +135,6 @@ function ApplicationPage() {
 
             const newDob = `${fullYear}-${month}-${day}`;
 
-            // Check if the generated date is a valid date before setting it
             if (!isNaN(new Date(newDob))) {
                 setFormData(prev => ({ ...prev, date_of_birth: newDob }));
             }
@@ -412,8 +411,10 @@ function ApplicationPage() {
 
             <section className="py-16">
                 <div className="container mx-auto px-6 max-w-4xl">
-                    <div className="mb-12 flex justify-center">
-                        <ProgressBar currentStep={currentStep} />
+                    <div className="mb-12 overflow-x-auto pb-4 -mx-6 px-6">
+                        <div className="relative inline-flex justify-start md:justify-center w-full">
+                            <ProgressBar currentStep={currentStep} />
+                        </div>
                     </div>
                     
                     <div className="bg-white p-8 rounded-xl shadow-xl">
