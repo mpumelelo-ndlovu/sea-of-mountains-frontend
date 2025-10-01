@@ -1,22 +1,24 @@
+// FILE: src/pages/AmenitiesPage.jsx
+// FINAL REVISED VERSION: Adds more detailed amenity descriptions and new categories.
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   WifiIcon,
   HomeModernIcon,
-  BookOpenIcon,
   FireIcon,
   ReceiptRefundIcon,
   LockClosedIcon,
   ChatBubbleLeftRightIcon,
   TicketIcon,
-  SparklesIcon, // General 'modern' or 'quality' icon
-  BuildingLibraryIcon, // For 'Communal Spaces' or 'Study Areas'
-  SunIcon, // For 'Outdoor Spaces' if applicable
-  BoltIcon, // For 'Backup Power' if applicable
+  SparklesIcon,
+  SunIcon,
+  BoltIcon,
+  TvIcon,
+  CubeTransparentIcon, 
 } from '@heroicons/react/24/outline';
 
-// Define amenities data within this component for now.
-// Consider moving to a shared data file if used in multiple places extensively.
+
 const amenitiesList = [
   { 
     name: 'High-Speed Wi-Fi', 
@@ -27,109 +29,127 @@ const amenitiesList = [
   { 
     name: 'Fully Furnished Rooms', 
     Icon: HomeModernIcon, 
-    description: 'Comfortable and modern rooms equipped with essential furniture including a bed, desk, chair, and storage.',
+    description: 'Each room comes standard with essential, high-quality furniture to make your move-in seamless.',
     category: 'Room Comforts'
   },
   { 
-    name: 'Dedicated Study Lounges', 
-    Icon: BookOpenIcon, 
-    description: 'Quiet and well-lit spaces designed for focused study sessions, group work, or individual learning.',
+    name: 'Room Inclusions', 
+    Icon: CubeTransparentIcon, 
+    description: {
+        points: [
+            'Single bed and mattress',
+            'Fixed desktop and study chair',
+            'Lamp and heater for comfort',
+            'Large clothing cupboard with shelves and hanging space',
+            'Additional shelving for books and personal items',
+            'Mounted wall mirror'
+        ]
+    },
+    category: 'Room Comforts'
+  },
+  { 
+    name: 'TV Rooms', 
+    Icon: TvIcon, 
+    description: 'Comfortable lounges equipped with TVs for relaxation and entertainment, providing a great space to unwind.',
     category: 'Connectivity & Study'
   },
   { 
-    name: 'Modern Communal Kitchens', 
+    name: 'Communal Kitchens', 
     Icon: FireIcon, 
-    description: 'Fully equipped kitchens with modern appliances where you can prepare your meals and socialize.',
-    category: 'Communal Living'
+    description: 'Each fully equipped kitchen features a stove, microwave, fridge, airfryer, toaster, and kettle for all your cooking needs.',
+    category: 'Communal Spaces'
+  },
+    { 
+    name: 'Modern Bathrooms', 
+    Icon: SparklesIcon, 
+    description: [
+        'Single & Sharing Communes: Feature two separate shower rooms (with curtain, mirror, basin) and two separate toilet rooms (with mirror, basin).',
+        '2-Unit Single Communes: Feature one private, modern bathroom with a glass shower, toilet, basin, and mirror.'
+    ],
+    category: 'Communal Spaces'
   },
   { 
-    name: 'On-Site Laundry Facilities', 
+    name: 'Laundry Facilities', 
     Icon: ReceiptRefundIcon, 
-    description: 'Convenient and accessible laundry machines available for all residents, making chores easy.',
-    category: 'Convenience'
+    description: 'On-site washing and drying machines are available 24/7 for your convenience.',
+    category: 'Utilities & Services'
   },
   { 
-    name: '24/7 Security & CCTV', 
+    name: '24/7 Security', 
     Icon: LockClosedIcon, 
-    description: 'Your safety is our priority, with round-the-clock security personnel and CCTV surveillance in common areas.',
+    description: 'Your safety is our priority with around-the-clock security personnel, CCTV surveillance, and secure biometric access.',
     category: 'Safety & Security'
   },
   { 
-    name: 'Vibrant Social Spaces', 
-    Icon: ChatBubbleLeftRightIcon, 
-    description: 'Relax, unwind, and connect with fellow students in our comfortable and inviting communal lounges.',
-    category: 'Communal Living'
+    name: 'Outdoor Social Areas', 
+    Icon: SunIcon, 
+    description: 'Vibrant outdoor areas designed for students to sit, chill, and interact with friends in a relaxed setting.',
+    category: 'Communal Spaces'
   },
   { 
-    name: 'Secure Parking Available', 
+    name: 'Secure Parking', 
     Icon: TicketIcon, 
-    description: 'Hassle-free and secure parking options available for residents with vehicles (subject to availability).',
-    category: 'Convenience'
+    description: 'Secure on-site parking is available for students with vehicles, subject to availability.',
+    category: 'Utilities & Services'
   },
-  // Add more amenities as needed
-  // { 
-  //   name: 'Backup Power Supply', 
-  //   Icon: BoltIcon, 
-  //   description: 'Ensuring minimal disruption to your studies and daily life during power outages.',
-  //   category: 'Convenience'
-  // },
-  // { 
-  //   name: 'Outdoor Relaxation Areas', 
-  //   Icon: SunIcon, 
-  //   description: 'Enjoy fresh air and green spaces to relax or socialize outdoors.',
-  //   category: 'Communal Living'
-  // },
+  {
+    name: 'Backup Power',
+    Icon: BoltIcon,
+    description: 'We have backup generators to ensure that essential services like Wi-Fi, lighting, security, and fridges remain operational during power outages.',
+    category: 'Utilities & Services'
+  }
 ];
 
-// Helper to group amenities by category
 const groupAmenitiesByCategory = (amenities) => {
   return amenities.reduce((acc, amenity) => {
-    const category = amenity.category || 'General';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(amenity);
+    (acc[amenity.category] = acc[amenity.category] || []).push(amenity);
     return acc;
   }, {});
 };
 
-
 function AmenitiesPage() {
-  const groupedAmenities = groupAmenitiesByCategory(amenitiesList);
+  const amenitiesByCategory = groupAmenitiesByCategory(amenitiesList);
 
   return (
-    <div className="bg-white text-gray-800 font-sans">
-      {/* Page Banner */}
-      <section className="bg-mountain-tan text-white py-20 md:py-28">
+    <div className="bg-white">
+      {/* Hero Section */}
+      <section className="bg-ocean-blue text-white py-20">
         <div className="container mx-auto px-6 text-center">
-          <SparklesIcon className="h-16 w-16 md:h-20 md:w-20 text-white mx-auto mb-6 stroke-[1.5]" />
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">Our Amenities</h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
-            Experience a comfortable and convenient lifestyle with our wide range of student-focused amenities at Sea of Mountains.
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Everything You Need to Succeed
+          </h1>
+          <p className="text-lg text-gray-200 max-w-2xl mx-auto">
+            Our amenities are thoughtfully curated to support both your academic and personal life, ensuring a comfortable and enriching university experience.
           </p>
         </div>
       </section>
 
-      {/* Amenities Listing Section */}
+      {/* Amenities Grid Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-6">
-          {Object.entries(groupedAmenities).map(([category, items]) => (
+          {Object.entries(amenitiesByCategory).map(([category, amenities]) => (
             <div key={category} className="mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-ocean-blue mb-10 text-center md:text-left border-b-2 border-mountain-tan pb-4">
+              <h2 className="text-3xl font-bold text-gray-800 mb-8 border-b-2 border-mountain-tan pb-2 inline-block">
                 {category}
               </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {items.map((amenity) => (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {amenities.map((amenity) => (
                   <div 
                     key={amenity.name} 
-                    className="bg-gray-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex items-start space-x-4 transform hover:scale-[1.03]"
+                    className="flex items-start space-x-6 p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-shadow"
                   >
                     <div className="flex-shrink-0 mt-1">
                       <amenity.Icon className="h-10 w-10 text-mountain-tan stroke-[1.5]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-ocean-blue mb-1">{amenity.name}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">{amenity.description}</p>
+                        <h3 className="text-xl font-semibold text-ocean-blue mb-2">{amenity.name}</h3>
+                        {typeof amenity.description === 'string' && <p className="text-gray-600 text-sm leading-relaxed">{amenity.description}</p>}
+                        {Array.isArray(amenity.description) && amenity.description.map((p, i) => <p key={i} className="text-gray-600 text-sm leading-relaxed mt-2">{p}</p>)}
+                        {typeof amenity.description === 'object' && amenity.description.points && (
+                            <ul className="list-disc list-inside text-gray-600 text-sm leading-relaxed mt-2 space-y-1">
+                            {amenity.description.points.map((point, i) => <li key={i}>{point}</li>)}
+                            </ul>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -152,7 +172,7 @@ function AmenitiesPage() {
             to="/apply"
             className="inline-block bg-mountain-tan hover:bg-opacity-80 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105"
           >
-            Apply for Accommodation
+            Apply for 2026
           </Link>
         </div>
       </section>

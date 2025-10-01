@@ -1,265 +1,151 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-import feather from 'feather-icons';
-import * as THREE from 'three';
-import GLOBE from 'vanta/dist/vanta.globe.min.js';
+import { useAuth } from '../context/AuthContext';
+import {
+  MapPinIcon, ShieldCheckIcon, CubeTransparentIcon, UserGroupIcon, WifiIcon, HomeModernIcon,
+  FireIcon, ReceiptRefundIcon, LockClosedIcon, ChatBubbleLeftRightIcon,
+  TicketIcon, ChevronRightIcon, TvIcon, BanknotesIcon,
+} from '@heroicons/react/24/outline';
+import AnimatedSection from '../components/AnimatedSection';
+import GradientText from '../components/GradientText';
+import ElectricBorder from '../components/ElectricBorder';
+import RotatingText from '../components/RotatingText';
 
-// Icon component for easier use
-const Icon = ({ name, className }) => (
-  <i data-feather={name} className={className}></i>
-);
+const keyBenefits = [
+  { id: 1, Icon: MapPinIcon, title: 'Prime Location', description: 'Perfectly situated for Sol Plaatje University students, with accommodation situated directly on-campus.' },
+  { id: 2, Icon: ShieldCheckIcon, title: 'Safe & Secure', description: '24/7 security, CCTV, and secure access control for your peace of mind.' },
+  { id: 3, Icon: CubeTransparentIcon, title: 'Modern Amenities', description: 'Fully furnished rooms, high-speed Wi-Fi, study areas, and communal spaces.' },
+  { id: 4, Icon: UserGroupIcon, title: 'Vibrant Community', description: 'Join a vibrant, supportive and friendly student life experience.' },
+  { id: 5, Icon: BanknotesIcon, title: 'All Bursaries', description: 'We accept NSFAS, private bursaries, and self-paying students.' },
+];
 
-const HomePage = () => {
-  const vantaRef = useRef(null);
-  const [vantaEffect, setVantaEffect] = useState(null);
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+const amenitiesForHomepage = [
+  { name: 'High-Speed Wi-Fi', Icon: WifiIcon },
+  { name: 'Furnished Rooms', Icon: HomeModernIcon },
+  { name: 'TV Rooms', Icon: TvIcon },
+  { name: 'Communal Kitchens', Icon: FireIcon },
+  { name: 'Laundry Facilities', Icon: ReceiptRefundIcon },
+  { name: '24/7 Security', Icon: LockClosedIcon },
+  { name: 'Social Spaces', Icon: ChatBubbleLeftRightIcon },
+  { name: 'Parking Available', Icon: TicketIcon },
+];
 
-  useEffect(() => {
-    // Initialize AOS
-    AOS.init({
-      duration: 1000,
-      once: true,
-      offset: 100,
-    });
+const roomTypesDataForHomepage = [
+  { name: 'The Single Room', featured: false, description: 'Your own private sanctuary, fully furnished with a single bed, dedicated study desk, and generous storage solutions.', imageUrl: 'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room', link: '/rooms#deluxe-single' },
+  { name: 'The 2-Unit Single Room', featured: true, description: 'Enjoy the privacy of a single room with the social benefits of a small, two-person commune, sharing a modern kitchen and a larger bathroom.', imageUrl: 'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Single', link: '/rooms#2-unit-single', borderColor: '#FFD700' },
+  { name: 'The Sharing Room', featured: false, description: 'A comfortable and spacious twin sharing room, perfect for making connections, complete with seperateindividual study areas.', imageUrl: 'https://placehold.co/600x400/9d6a51/FFFFFF?text=Sharing+Room', link: '/rooms#sharing-room' },
+];
 
-    // Initialize Vanta
-    if (!vantaEffect) {
-      setVantaEffect(
-        GLOBE({
-          el: vantaRef.current,
-          THREE: THREE,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          color: 0x00d4ff,      // --neon-cyan
-          backgroundColor: 0x0a0e27, // --deep-space
-          size: 1.5,
-        })
-      );
-    }
-    
-    // Initialize Feather Icons
-    feather.replace();
-
-    // Cleanup Vanta effect on component unmount
-    return () => {
-      if (vantaEffect) vantaEffect.destroy();
-    };
-  }, [vantaEffect]);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!isMobileMenuOpen);
-  };
-  
-  const handleMobileLinkClick = () => {
-      setMobileMenuOpen(false);
-  };
+function HomePage() {
+  const heroImageUrl = '/hero-background.jpg';
+  const { user, hasApplication, loading } = useAuth();
+  const subtleBgPattern = { backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` };
+  const rotatingWords = ["Apply Now", "for 2026", "Secure Your Spot"];
 
   return (
-    <div className="neural-bg">
-      {/* --- Navigation --- */}
-      <nav className="fixed top-0 w-full z-50 glass-morphism">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <a href="#home" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-neon-cyan to-neon-purple rounded-lg flex items-center justify-center">
-                <Icon name="home" className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gradient">Sea of Mountains</span>
-            </a>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#home" className="text-gray-300 hover:text-neon-cyan transition-colors duration-300">Home</a>
-              <a href="#features" className="text-gray-300 hover:text-neon-cyan transition-colors duration-300">Features</a>
-              <a href="#rooms" className="text-gray-300 hover:text-neon-cyan transition-colors duration-300">Rooms</a>
-              <a href="#amenities" className="text-gray-300 hover:text-neon-cyan transition-colors duration-300">Amenities</a>
-              <Link to="/apply" className="bg-gradient-to-r from-neon-cyan to-neon-purple px-6 py-2 rounded-full font-semibold hover:glow-effect transition-all duration-300">Apply Now</Link>
-            </div>
-            <button className="md:hidden text-white" onClick={toggleMobileMenu}>
-              <Icon name="menu" className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* --- Mobile Menu --- */}
-      <div className={`fixed inset-0 z-40 bg-gray-900 bg-opacity-95 backdrop-blur-sm md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-        <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <button onClick={toggleMobileMenu} className="absolute top-6 right-6 text-white">
-                <Icon name="x" className="w-8 h-8" />
-            </button>
-            <a href="#home" onClick={handleMobileLinkClick} className="text-2xl text-gray-300 hover:text-neon-cyan transition-colors">Home</a>
-            <a href="#features" onClick={handleMobileLinkClick} className="text-2xl text-gray-300 hover:text-neon-cyan transition-colors">Features</a>
-            <a href="#rooms" onClick={handleMobileLinkClick} className="text-2xl text-gray-300 hover:text-neon-cyan transition-colors">Rooms</a>
-            <a href="#amenities" onClick={handleMobileLinkClick} className="text-2xl text-gray-300 hover:text-neon-cyan transition-colors">Amenities</a>
-            <Link to="/apply" onClick={handleMobileLinkClick} className="bg-gradient-to-r from-neon-cyan to-neon-purple px-8 py-3 rounded-full font-semibold text-lg">Apply Now</Link>
-        </div>
-      </div>
-
-      {/* --- Hero Section --- */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        <div ref={vantaRef} className="absolute inset-0"></div>
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 text-gradient" data-aos="fade-up">
-            Future of Student Living
+    <>
+      <section id="hero" style={{ backgroundImage: `url(${heroImageUrl})` }} className="bg-cover bg-center h-[calc(100vh-72px)] text-white flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-0"></div>
+        <div className="relative z-10 text-center p-6 max-w-4xl">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-shadow-lg animate-zoom-in">
+            Experience Premium Student Accommodation in Kimberley.
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="200">
-            Experience premium, accredited student accommodation at Sol Plaatje University.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="400">
-            <a href="#rooms" className="bg-gradient-to-r from-neon-cyan to-neon-purple px-8 py-4 rounded-full font-bold text-lg hover:glow-effect transition-all duration-300 transform hover:scale-105">
+          <div className="mt-6 text-3xl md:text-5xl font-bold text-shadow-lg animate-zoom-in animation-delay-200">
+            <RotatingText words={rotatingWords} />
+          </div>
+          <p className="text-xl md:text-2xl mt-8 mb-10 text-gray-100 text-shadow-md animate-zoom-in animation-delay-400">Sol Plaatje University Accredited Off-Campus accommodation, located at the heart of Campus.</p>
+          <div className="space-y-4 sm:space-y-0 sm:space-x-4 animate-zoom-in animation-delay-600">
+            <Link 
+              to="/rooms" 
+              className="inline-block bg-ocean-blue hover:bg-blue-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50 focus:ring-ocean-blue"
+            >
               Explore Rooms
-            </a>
-            <Link to="/contact" className="glass-morphism px-8 py-4 rounded-full font-bold text-lg hover:glow-effect transition-all duration-300">
-              Contact Us
             </Link>
-          </div>
-        </div>
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 floating">
-          <Icon name="chevron-down" className="w-8 h-8 text-neon-cyan" />
-        </div>
-      </section>
-
-      {/* --- Features Section --- */}
-      <section id="features" className="py-20 md:py-32 relative">
-        <div className="container mx-auto px-6">
-          <h2 className="text-4xl md:text-6xl font-bold text-center mb-20 text-gradient" data-aos="fade-up">
-            Key Features
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="holographic-card p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
-                <div className="w-20 h-20 bg-gradient-to-br from-neon-cyan to-neon-purple rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon name="map-pin" className="w-10 h-10 text-white"/>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Prime Location</h3>
-                <p className="text-gray-400">On-campus accommodation, ensuring you are always at the heart of university life.</p>
-            </div>
-            {/* Feature 2 */}
-            <div className="holographic-card p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
-                <div className="w-20 h-20 bg-gradient-to-br from-neon-purple to-mountain-tan rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon name="shield" className="w-10 h-10 text-white"/>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Safe & Secure</h3>
-                <p className="text-gray-400">24/7 security, CCTV, and secure biometric access control for complete peace of mind.</p>
-            </div>
-            {/* Feature 3 */}
-            <div className="holographic-card p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
-                <div className="w-20 h-20 bg-gradient-to-br from-mountain-tan to-neon-cyan rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon name="wifi" className="w-10 h-10 text-white"/>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Modern Amenities</h3>
-                <p className="text-gray-400">High-speed Wi-Fi, furnished rooms, dedicated study areas, and communal lounges.</p>
-            </div>
-            {/* Feature 4 */}
-            <div className="holographic-card p-8 rounded-2xl text-center transform hover:scale-105 transition-all duration-300" data-aos="fade-up" data-aos-delay="400">
-                <div className="w-20 h-20 bg-gradient-to-br from-neon-cyan to-mountain-tan rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Icon name="users" className="w-10 h-10 text-white"/>
-                </div>
-                <h3 className="text-xl font-bold mb-3">Vibrant Community</h3>
-                <p className="text-gray-400">Join a supportive and engaging community of like-minded students.</p>
-            </div>
+            {user && !loading && hasApplication && (
+              <Link 
+                to="/dashboard" 
+                className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50 focus:ring-mountain-tan"
+              >
+                View Dashboard
+              </Link>
+            )}
+            {(!user || (user && !loading && !hasApplication)) && (
+               <Link 
+                to="/apply" 
+                className="inline-block bg-mountain-tan hover:bg-yellow-700 text-white text-lg font-semibold py-3.5 px-10 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50 focus:ring-mountain-tan"
+              >
+                Apply Today
+              </Link>
+            )}
           </div>
         </div>
       </section>
 
-      {/* --- Rooms Section --- */}
-      <section id="rooms" className="py-20 md:py-32 relative grid-pattern">
-        <div className="container mx-auto px-6">
-          <h2 className="text-4xl md:text-6xl font-bold text-center mb-20 text-gradient" data-aos="fade-up">
-            Our Rooms
-          </h2>
-          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Room 1 */}
-            <div className="glass-morphism rounded-3xl overflow-hidden group" data-aos="fade-right">
-                <div className="relative h-80 overflow-hidden">
-                    <img src="/hero-background.jpg" alt="Deluxe Single Room" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                </div>
-                <div className="p-8">
-                    <h3 className="text-3xl font-bold mb-4 text-neon-cyan">The Deluxe Single</h3>
-                    <p className="text-gray-300 mb-6">Your private sanctuary, fully furnished with a bed, dedicated study desk, and ample storage.</p>
-                    <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold text-gradient">From R3,500/pm</span>
-                        <Link to="/rooms" className="bg-gradient-to-r from-neon-cyan to-neon-purple px-6 py-3 rounded-full font-semibold hover:glow-effect transition-all duration-300">
-                          View Details
-                        </Link>
-                    </div>
-                </div>
-            </div>
-            {/* Room 2 */}
-            <div className="glass-morphism rounded-3xl overflow-hidden group" data-aos="fade-left">
-                <div className="relative h-80 overflow-hidden">
-                    <img src="/src/assets/IMG_0712.jpg" alt="Sharing Room" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                </div>
-                <div className="p-8">
-                    <h3 className="text-3xl font-bold mb-4 text-neon-purple">The Sharing Room</h3>
-                    <p className="text-gray-300 mb-6">A comfortable and spacious twin sharing room, perfect for collaboration and making new friends.</p>
-                    <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold text-gradient">From R2,200/pm</span>
-                        <Link to="/rooms" className="bg-gradient-to-r from-neon-purple to-mountain-tan px-6 py-3 rounded-full font-semibold hover:glow-effect transition-all duration-300">
-                           View Details
-                        </Link>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- Amenities Section --- */}
-      <section id="amenities" className="py-20 md:py-32 relative">
-          <div className="container mx-auto px-6">
-              <h2 className="text-4xl md:text-6xl font-bold text-center mb-20 text-gradient" data-aos="fade-up">
-                  Student Amenities
+      <AnimatedSection className="py-20 md:py-28 bg-white" style={subtleBgPattern}>
+          <div className="container mx-auto px-6 text-center">
+              <h2 className="text-5xl md:text-7xl font-black mb-6">
+                <GradientText colors={['#005792', '#9D6A51', '#005792']}>
+                  Why Sea of Mountains?
+                </GradientText>
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
-                {[
-                  { icon: 'wifi', name: 'High-Speed Wi-Fi', desc: 'Uncapped & Unshaped' },
-                  { icon: 'book-open', name: 'Study Lounges', desc: 'Quiet & Collaborative' },
-                  { icon: 'coffee', name: 'Communal Kitchens', desc: 'Modern & Equipped' },
-                  { icon: 'zap', name: 'Laundry Facilities', desc: 'On-site & Convenient' },
-                ].map((amenity, index) => (
-                  <div key={amenity.name} className="text-center group" data-aos="zoom-in" data-aos-delay={100 * (index + 1)}>
-                      <div className="glass-morphism w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                          <Icon name={amenity.icon} className="w-12 h-12 text-neon-cyan" />
-                      </div>
-                      <h4 className="font-semibold mb-2">{amenity.name}</h4>
-                      <p className="text-sm text-gray-400">{amenity.desc}</p>
+              <p className="text-lg text-gray-600 mb-16 max-w-3xl mx-auto">We provide the space, you create the home.</p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 mt-16 max-w-7xl mx-auto">{keyBenefits.map((benefit, index) => (<div key={benefit.id} className={`bg-gray-50 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 flex flex-col items-center animation-delay-${index * 100}`}><benefit.Icon className="h-16 w-16 text-mountain-tan mb-6 stroke-[1.5]" /><h3 className="text-2xl font-semibold text-ocean-blue mb-3">{benefit.title}</h3><p className="text-gray-600 text-sm leading-relaxed">{benefit.description}</p></div>))}</div>
+          </div>
+      </AnimatedSection>
+      
+      <AnimatedSection className="py-20 md:py-28 bg-ocean-blue text-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16"><h2 className="text-4xl md:text-5xl font-bold mb-6">Find Your Perfect Space</h2><p className="text-lg text-gray-200 max-w-3xl mx-auto">Choose between our private Single Rooms, collaborative Sharing Rooms, or our exclusive 2-Unit apartments.</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+            {roomTypesDataForHomepage.map((room) => {
+              const roomCard = (
+                <div className="bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden group flex flex-col h-full">
+                  <div className="relative h-64">
+                    <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                   </div>
-                ))}
-              </div>
-          </div>
-      </section>
+                  <div className="p-8 flex flex-col flex-grow">
+                    <h3 className="text-3xl font-bold text-ocean-blue mb-3">{room.name}</h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{room.description}</p>
+                    <Link to={room.link} className="inline-flex items-center self-start text-mountain-tan font-semibold text-lg hover:underline transition-colors duration-300">
+                      Learn More <ChevronRightIcon className="ml-1 h-5 w-5"/>
+                    </Link>
+                  </div>
+                </div>
+              );
 
-      {/* --- Apply CTA Section --- */}
-      <section id="apply" className="py-20 md:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-ocean-blue via-deep-space to-neon-purple opacity-20"></div>
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <h2 className="text-4xl md:text-7xl font-black mb-8 text-gradient" data-aos="fade-up">
-            Ready to Find Your Space?
-          </h2>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="200">
-            Applications for 2026 are now open. Secure your spot today and experience the best in student living.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="400">
-            <Link to="/apply" className="bg-gradient-to-r from-neon-cyan to-neon-purple px-10 py-5 rounded-full font-bold text-xl hover:glow-effect transition-all duration-300 transform hover:scale-105 pulse-glow">
-              Apply Online Now
-            </Link>
+              if (room.featured) {
+                return (
+                  <ElectricBorder key={room.name} color={room.borderColor} style={{ borderRadius: '1.5rem' }} speed={2} chaos={0.8} thickness={2}>
+                    {roomCard}
+                  </ElectricBorder>
+                );
+              }
+              
+              return <div key={room.name}>{roomCard}</div>;
+            })}
           </div>
-          <p className="text-gray-400 mt-8" data-aos="fade-up" data-aos-delay="600">
-            Limited spaces available • Applications are processed on a first-come, first-served basis.
-          </p>
+           <div className="text-center mt-12"><Link to="/rooms" className="bg-mountain-tan hover:bg-opacity-80 text-white text-lg font-semibold py-3.5 px-8 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105">View All Room Options</Link></div>
         </div>
-      </section>
-    </div>
+      </AnimatedSection>
+
+      <AnimatedSection className="py-20 md:py-28 bg-white" style={subtleBgPattern}>
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-ocean-blue mb-16">Everything You Need, All In One Place</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-10">{amenitiesForHomepage.map((amenity) => (<div key={amenity.name} className="flex flex-col items-center group cursor-pointer"><div className="p-5 bg-gray-100 rounded-full shadow-md group-hover:bg-mountain-tan group-hover:shadow-lg transition-all duration-300 ease-in-out mb-4 transform group-hover:scale-110 group-hover:-translate-y-1"><amenity.Icon className="h-10 w-10 text-ocean-blue group-hover:text-white transition-colors duration-300 stroke-[1.5]" /></div><p className="text-gray-700 font-semibold text-lg group-hover:text-ocean-blue transition-colors duration-300">{amenity.name}</p></div>))}</div>
+          <div className="text-center mt-16"><Link to="/amenities" className="bg-ocean-blue hover:bg-opacity-90 text-white text-lg py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">Explore All Amenities</Link></div>
+        </div>
+      </AnimatedSection>
+      <AnimatedSection className="py-20 md:py-28 bg-gray-100">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-ocean-blue mb-6">More Than Just Accommodation</h2>
+          <p className="text-lg text-gray-600 mb-16 max-w-3xl mx-auto">Become part of the vibrant Sea of Mountains community. Make friends, create memories, and feel at home.</p>
+          <div className="grid md:grid-cols-3 gap-10">{[1,2,3].map(i => (<div key={i} className="bg-white rounded-xl shadow-xl overflow-hidden group"><img src={`https://placehold.co/600x400/${i % 2 === 0 ? '005792' : '9d6a51'}/FFFFFF?text=Community+Vibe+${i}`} alt={`Student Life ${i}`} className="w-full h-56 object-cover group-hover:opacity-80 transition-opacity duration-300"/><div className="p-6"><h3 className="text-xl font-semibold text-ocean-blue mb-2">Student Gatherings</h3><p className="text-gray-600 text-sm">Regular events and activities to help you connect and unwind.</p></div></div>))}</div>
+        </div>
+      </AnimatedSection>
+      <section id="apply-cta" className="py-24 md:py-36 bg-ocean-blue text-white"><div className="container mx-auto px-6 text-center"><h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Ready to Find Your Perfect Student Home?</h2><p className="text-xl text-gray-200 mb-12 max-w-2xl mx-auto">Applications for Sea of Mountains are now open. Secure your spot today and experience the best student living in Kimberley.</p>{(!user || (user && !loading && !hasApplication)) && (<Link to="/apply" className="bg-mountain-tan hover:bg-opacity-80 text-white text-xl font-semibold py-4 px-12 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105">Apply Online Now</Link>)}</div></section>
+    </>
   );
-};
+}
 
 export default HomePage;

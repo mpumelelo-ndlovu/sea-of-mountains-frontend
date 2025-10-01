@@ -1,5 +1,5 @@
 // FILE: src/components/RotatingText.jsx
-// A new component to create a rotating text effect with a smooth animation.
+// FINAL REVISED VERSION: Corrects the styling to use a background highlight as originally intended.
 
 import React, { useState, useEffect } from 'react';
 
@@ -38,7 +38,7 @@ const RotatingText = ({ words, period = 2000 }) => {
   }, [currentIndex, words]);
 
   return (
-    <span className="border-b-4 border-mountain-tan">
+    <span className="bg-mountain-tan text-white px-3 py-1 rounded-lg">
       {text}
       <span className="animate-pulse">|</span>
     </span>

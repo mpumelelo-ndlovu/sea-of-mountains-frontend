@@ -1,9 +1,9 @@
 // FILE: src/pages/RoomsPage.jsx
-// FINAL REVISED VERSION: Uses the correct room names to fetch and display dynamic prices.
+// FINAL REVISED VERSION: Adds the "2-Unit Single Room" while preserving the original page design.
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Import useAuth to get the api instance
+import { useAuth } from '../context/AuthContext';
 import roomsHeroImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
 import {
   UsersIcon,
@@ -14,31 +14,31 @@ import {
   ArchiveBoxIcon,
   ShieldCheckIcon,
   CurrencyDollarIcon,
-  ArrowPathIcon, // For loading spinner
+  ArrowPathIcon,
+  HomeModernIcon, // Added for the new room type feature
 } from '@heroicons/react/24/outline';
 
-// Static details for the rooms. Pricing will be populated from the API.
 const roomDetailsStructure = [
   {
-    id: 'deluxe-single',
-    name: 'The Deluxe Single Room',
-    // --- THIS IS THE FIX ---
-    apiKey: 'single room', 
-    heroImage: 'https://placehold.co/1200x600/005792/FFFFFF?text=Deluxe+Single+Room+View',
+    id: 'single-room',
+    name: 'The Single Room', // Renamed from Deluxe Single Room
+    apiKey: 'single', 
+    heroImage: 'https://placehold.co/1200x600/005792/FFFFFF?text=Single+Room+View',
     shortDescription: 'Your private sanctuary designed for focus and comfort, offering a premium student living experience.',
     longDescription: [
-      'Experience ultimate privacy and productivity in our Deluxe Single Room. This room is meticulously designed for the discerning student who values a personal haven for study and relaxation.',
+      'Experience ultimate privacy and productivity in our Single Room. This room is meticulously designed for the discerning student who values a personal haven for study and relaxation.',
       'Fully furnished with high-quality furniture, it provides everything you need to settle in and focus on your academic journey at Sol Plaatje University.',
     ],
     features: [
       { Icon: UserIcon, text: 'Private & Spacious Layout' },
+      { Icon: UsersIcon, text: 'Part of a 4-person shared commune' },
       { Icon: SparklesIcon, text: 'Modern Furnishing & Finishes' },
       { Icon: AcademicCapIcon, text: 'Dedicated Study Desk & Chair' },
       { Icon: WifiIcon, text: 'High-Speed Wi-Fi Included' },
       { Icon: ArchiveBoxIcon, text: 'Ample Storage & Wardrobe Space' },
       { Icon: ShieldCheckIcon, text: 'Secure & Private Environment' },
     ],
-    pricing: 'Loading price...', // Default placeholder
+    pricing: 'Loading price...',
     gallery: [
       'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room+1',
       'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room+2',
@@ -46,25 +46,51 @@ const roomDetailsStructure = [
     ],
   },
   {
-    id: 'premium-sharing',
-    name: 'The Premium Sharing Room',
-    // --- THIS IS THE FIX ---
-    apiKey: 'sharing room', 
+    id: '2-unit-single',
+    name: 'The 2-Unit Single Room',
+    apiKey: '2-unit', 
+    heroImage: 'https://placehold.co/1200x600/FFD700/000000?text=2-Unit+Single+View',
+    shortDescription: 'The privacy of a single room with the social benefits of a small, two-person commune.',
+    longDescription: [
+        'Enjoy the best of both worlds in our 2-Unit Single Room. You get the privacy and focus of your own lockable room, while sharing a modern kitchen and a more spacious bathroom with just one other student.',
+        'This setup is perfect for those who want a quiet personal space but still enjoy a social, collaborative living arrangement.'
+    ],
+    features: [
+      { Icon: UserIcon, text: 'Private Lockable Bedroom' },
+      { Icon: SparklesIcon, text: 'Larger single room size' },
+      { Icon: UsersIcon, text: '2-person shared commune' },
+      { Icon: HomeModernIcon, text: 'Modern Kitchen & Larger Bathroom' },
+      { Icon: AcademicCapIcon, text: 'Dedicated Study Desk & Chair' },
+      { Icon: WifiIcon, text: 'High-Speed Wi-Fi Included' },
+      { Icon: ArchiveBoxIcon, text: 'Ample Personal Storage' },
+    ],
+    pricing: 'Loading price...',
+    gallery: [
+      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+1',
+      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+2',
+      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+3',
+    ],
+  },
+  {
+    id: 'sharing-room',
+    name: 'The Sharing Room',
+    apiKey: 'sharing', 
     heroImage: 'https://placehold.co/1200x600/9D6A51/FFFFFF?text=Premium+Sharing+Room+View',
     shortDescription: 'A collaborative living space that combines comfort with affordability, perfect for the social student.',
     longDescription: [
-      'Our Premium Sharing Room is the ideal choice for students who thrive in a communal environment. It offers a perfect balance of personal space and shared living, fostering a sense of community.',
+      'Our Sharing Room is the ideal choice for students who thrive in a communal environment. It offers a perfect balance of personal space and shared living, fostering a sense of community.',
       'Each resident has their own dedicated study area and storage, while sharing the room with a fellow SPU student, making it a cost-effective and social option.',
     ],
     features: [
       { Icon: UsersIcon, text: 'Shared Living with Personal Space' },
+      { Icon: UsersIcon, text: 'Part of an 8-person shared commune' },
       { Icon: SparklesIcon, text: 'Modern Twin Furnishings' },
       { Icon: AcademicCapIcon, text: 'Individual Study Desks' },
       { Icon: WifiIcon, text: 'High-Speed Wi-Fi Included' },
       { Icon: ArchiveBoxIcon, text: 'Personal Wardrobe for Each Student' },
       { Icon: CurrencyDollarIcon, text: 'Cost-Effective Accommodation' },
     ],
-    pricing: 'Loading price...', // Default placeholder
+    pricing: 'Loading price...',
     gallery: [
       'https://placehold.co/600x400/9D6A51/FFFFFF?text=Sharing+Room+1',
       'https://placehold.co/600x400/9D6A51/FFFFFF?text=Sharing+Room+2',
@@ -85,7 +111,6 @@ const RoomsPage = () => {
         const response = await api.get('/api/room-types/');
         const apiRoomTypes = response.data;
 
-        // Create a new array with updated prices
         const updatedRoomDetails = roomDetailsStructure.map(room => {
           const apiRoom = apiRoomTypes.find(apiRoom => apiRoom.name.toLowerCase().includes(room.apiKey));
           if (apiRoom) {
@@ -94,7 +119,7 @@ const RoomsPage = () => {
               pricing: `R${parseFloat(apiRoom.monthly_rate).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per month`
             };
           }
-          return { ...room, pricing: 'Price not available' }; // Fallback if not found
+          return { ...room, pricing: 'Price not available' };
         });
 
         setRoomData(updatedRoomDetails);
@@ -125,7 +150,6 @@ const RoomsPage = () => {
         </div>
       </section>
 
-      {/* Room Details Sections */}
       {isLoading ? (
         <div className="text-center py-24">
           <ArrowPathIcon className="h-12 w-12 text-gray-500 animate-spin mx-auto" />
@@ -140,6 +164,7 @@ const RoomsPage = () => {
           <section key={room.id} id={room.id} className={`py-16 md:py-24 ${index % 2 === 1 ? 'bg-white' : ''}`}>
             <div className="container mx-auto px-6">
               <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                
                 <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
                   <h2 className="text-3xl md:text-4xl font-bold text-ocean-blue mb-4">{room.name}</h2>
                   <p className="text-lg text-gray-700 mb-6">{room.shortDescription}</p>
@@ -164,20 +189,20 @@ const RoomsPage = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 order-first lg:order-none">
                   {room.gallery.map((imgSrc, i) => (
                     <div key={i} className={i === 0 ? 'col-span-2' : ''}>
                       <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"/>
                     </div>
                   ))}
                 </div>
+
               </div>
             </div>
           </section>
         ))
       )}
 
-      {/* General Call to Action / Next Steps */}
       <section className="py-16 md:py-24 bg-ocean-blue text-white text-center">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Choose Your Room?</h2>
