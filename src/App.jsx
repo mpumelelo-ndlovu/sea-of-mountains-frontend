@@ -1,5 +1,5 @@
 // FILE: src/App.jsx
-// FINAL REVISED VERSION: Removes all admin dashboard functionality.
+// REVISED: Updated footer contact information and design credit.
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
@@ -43,6 +43,16 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logoutUser, hasApplication, loading } = useAuth();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
 
   const handleLogout = () => {
     logoutUser();
@@ -74,31 +84,31 @@ function AppContent() {
       <ScrollToTop />
       <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col min-h-screen font-sans antialiased bg-gray-50">
-        <nav className="bg-ocean-blue text-white shadow-lg sticky top-0 z-50 w-full">
-          <div className="w-full px-6 py-4 flex justify-between items-center">
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-ocean-blue shadow-lg h-16" : "bg-ocean-blue h-20"}`}>
+          <div className="w-full px-4 md:px-6 h-full flex justify-between items-center">
             <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex-shrink-0">
-              <img src={logo} alt="Sea of Mountains Logo" className="h-12 w-auto" />
+              <img src={logo} alt="Sea of Mountains Logo" className={`transition-all duration-300 w-40 ${scrolled ? "h-20" : "h-40"}`} />
             </Link>
             <div className="hidden md:flex items-center space-x-6 text-sm">
               {navLinks.map(link => (
-                <Link key={link.text} to={link.to} className="hover:text-mountain-tan transition-colors duration-300 font-medium">{link.text}</Link>
+                <Link key={link.text} to={link.to} className="text-white hover:text-mountain-tan transition-colors duration-300 font-medium">{link.text}</Link>
               ))}
               <div className="w-px h-6 bg-white/20"></div>
               {user ? (
                 <>
-                  <Link to="/dashboard" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Dashboard</Link>
-                  <button onClick={handleLogout} className="hover:text-mountain-tan transition-colors duration-300 font-medium">Logout</button>
+                  <Link to="/dashboard" className="text-white hover:text-mountain-tan transition-colors duration-300 font-medium">Dashboard</Link>
+                  <button onClick={handleLogout} className="text-white hover:text-mountain-tan transition-colors duration-300 font-medium">Logout</button>
                 </>
-              ) : (<Link to="/login" className="hover:text-mountain-tan transition-colors duration-300 font-medium">Login</Link>)}
+              ) : (<Link to="/login" className="text-white hover:text-mountain-tan transition-colors duration-300 font-medium">Login</Link>)}
               {user && !loading && !hasApplication && (<Link to="/apply" className="bg-mountain-tan hover:bg-opacity-80 text-white py-2.5 px-6 rounded-md shadow-md transition-all duration-300 transform hover:scale-105 text-sm font-semibold">Apply Now</Link>)}
             </div>
             <div className="md:hidden"><button onClick={() => setIsMenuOpen(true)} className="text-white focus:outline-none"><Bars3Icon className="w-8 h-8" /></button></div>
           </div>
         </nav>
         <div className={`fixed inset-0 bg-ocean-blue z-50 flex flex-col transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="w-full flex justify-between items-center p-6 border-b border-white/20">
+          <div className="w-full flex items-center border-b border-white/20 py-2 px-4 justify-between">
             <Link to="/" onClick={() => setIsMenuOpen(false)}>
-              <img src={logo} alt="Sea of Mountains Logo" className="h-10 w-auto" />
+              <img src={logo} alt="Sea of Mountains Logo" className="h-12 w-auto" />
             </Link>
             <button onClick={() => setIsMenuOpen(false)} className="text-white"><XMarkIcon className="w-8 h-8" /></button>
           </div>
@@ -121,7 +131,7 @@ function AppContent() {
             )}
           </div>
         </div>
-        <main className="flex-grow">
+        <main className="flex-grow pt-20">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutUs />} />
@@ -163,8 +173,8 @@ function AppContent() {
                     <h3 className="text-lg font-semibold text-white mb-5">Get In Touch</h3>
                     <address className="not-italic text-sm space-y-2">
                         <p>Have questions? We're here to help!</p>
-                        <p><strong>Email:</strong> <a href="mailto:info@seaofmountains.co.za" className="hover:text-mountain-tan transition-colors">info@seaofmountains.co.za</a> (placeholder)</p>
-                        <p><strong>Phone:</strong> <a href="tel:+27530000000" className="hover:text-mountain-tan transition-colors">+27 53 000 0000</a> (placeholder)</p>
+                        <p><strong>Email:</strong> <a href="mailto:info@somaccommodation.com" className="hover:text-mountain-tan transition-colors">info@somaccommodation.com</a></p>
+                        <p><strong>Phone:</strong> <a href="tel:+27607891427" className="hover:text-mountain-tan transition-colors">+27 60 789 1427</a></p>
                     </address>
                 </div>
             </div>
@@ -174,7 +184,7 @@ function AppContent() {
                     <Link to="/security-policy" className="hover:text-mountain-tan transition-colors">Security Policy</Link>
                 </div>
                 <p>&copy; {new Date().getFullYear()} Sea of Mountains Student Accommodation. All Rights Reserved.</p>
-                <p className="mt-1">Designed with care in Kimberley.</p>
+                <p className="mt-1">Designed by MINTECH DIGITAL</p>
             </div>
           </div>
         </footer>

@@ -10,7 +10,7 @@ export default defineConfig({
     // This section ensures the HMR connection works correctly through ngrok
     hmr: {
       protocol: 'wss', // Use secure WebSocket protocol
-      host: 'c72a1ca429ce.ngrok-free.app', // Your ngrok hostname
+      host: '4da6fc82e172.ngrok-free.app', // Your ngrok hostname
     },
     proxy: {
       '/api': {

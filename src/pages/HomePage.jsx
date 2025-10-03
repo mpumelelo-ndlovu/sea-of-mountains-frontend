@@ -1,15 +1,21 @@
+// FILE: src/pages/HomePage.jsx
+// REVISED: Imported room images and updated application step descriptions.
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   MapPinIcon, ShieldCheckIcon, CubeTransparentIcon, UserGroupIcon, WifiIcon, HomeModernIcon,
   FireIcon, ReceiptRefundIcon, LockClosedIcon, ChatBubbleLeftRightIcon,
-  TicketIcon, ChevronRightIcon, TvIcon, BanknotesIcon,
+  TicketIcon, ChevronRightIcon, TvIcon, BanknotesIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import AnimatedSection from '../components/AnimatedSection';
 import GradientText from '../components/GradientText';
-import ElectricBorder from '../components/ElectricBorder';
 import RotatingText from '../components/RotatingText';
+import houseRulesPdf from '../assets/sea-of-mountains-rules-2025.pdf';
+import sharingRoomImage from '../assets/sroom1.jpg'; 
+import singleRoomImage from '../assets/single1.jpg';
+import sunitRoomImage from '../assets/sunit1.jpg';
 
 const keyBenefits = [
   { id: 1, Icon: MapPinIcon, title: 'Prime Location', description: 'Perfectly situated for Sol Plaatje University students, with accommodation situated directly on-campus.' },
@@ -31,10 +37,29 @@ const amenitiesForHomepage = [
 ];
 
 const roomTypesDataForHomepage = [
-  { name: 'The Single Room', featured: false, description: 'Your own private sanctuary, fully furnished with a single bed, dedicated study desk, and generous storage solutions.', imageUrl: 'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room', link: '/rooms#deluxe-single' },
-  { name: 'The 2-Unit Single Room', featured: true, description: 'Enjoy the privacy of a single room with the social benefits of a small, two-person commune, sharing a modern kitchen and a larger bathroom.', imageUrl: 'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Single', link: '/rooms#2-unit-single', borderColor: '#FFD700' },
-  { name: 'The Sharing Room', featured: false, description: 'A comfortable and spacious twin sharing room, perfect for making connections, complete with seperateindividual study areas.', imageUrl: 'https://placehold.co/600x400/9d6a51/FFFFFF?text=Sharing+Room', link: '/rooms#sharing-room' },
+  { name: 'The Single Room', featured: false, description: 'Your own private sanctuary, fully furnished with a single bed, dedicated study desk, and generous storage solutions.', imageUrl: singleRoomImage, link: '/rooms#single-room' },
+  { name: 'The 2-Unit Single Room', featured: true, description: 'Enjoy the privacy of a single room with the social benefits of a small, two-person commune, sharing a modern kitchen and a larger bathroom.', imageUrl: sunitRoomImage, link: '/rooms#2-unit-single', borderColor: '#FFD700' },
+  { name: 'The Sharing Room', featured: false, description: 'A comfortable and spacious twin sharing room, perfect for making connections, complete with seperateindividual study areas.', imageUrl: sharingRoomImage, link: '/rooms#sharing-room' },
 ];
+
+const applicationSteps = [
+    {
+        step: "01",
+        title: "APPLY",
+        description: "Complete the online application form and submit all your supporting documents through our easy-to-use portal.",
+    },
+    {
+        step: "02",
+        title: "APPROVE & SIGN",
+        description: "You will then receive provisional approval after mandatory checks. A R550 admin fee is then payable within 14 days to finalize and complete your application.",
+    },
+    {
+        step: "03",
+        title: "YOU ARE READY FOR 2026",
+        description: "After the application is finalized, you are now ready to settle in your new home at Sea of Mountains in 2026.",
+    }
+];
+
 
 function HomePage() {
   const heroImageUrl = '/hero-background.jpg';
@@ -44,7 +69,7 @@ function HomePage() {
 
   return (
     <>
-      <section id="hero" style={{ backgroundImage: `url(${heroImageUrl})` }} className="bg-cover bg-center h-[calc(100vh-72px)] text-white flex flex-col items-center justify-center relative overflow-hidden">
+      <section id="hero" style={{ backgroundImage: `url(${heroImageUrl})` }} className="bg-cover bg-center h-[calc(100vh-80px)] text-white flex flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-0"></div>
         <div className="relative z-10 text-center p-6 max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight text-shadow-lg animate-zoom-in">
@@ -116,9 +141,9 @@ function HomePage() {
 
               if (room.featured) {
                 return (
-                  <ElectricBorder key={room.name} color={room.borderColor} style={{ borderRadius: '1.5rem' }} speed={2} chaos={0.8} thickness={2}>
+                  <div key={room.name} className="rounded-2xl shadow-2xl ring-4 ring-yellow-400">
                     {roomCard}
-                  </ElectricBorder>
+                  </div>
                 );
               }
               
@@ -136,14 +161,34 @@ function HomePage() {
           <div className="text-center mt-16"><Link to="/amenities" className="bg-ocean-blue hover:bg-opacity-90 text-white text-lg py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">Explore All Amenities</Link></div>
         </div>
       </AnimatedSection>
-      <AnimatedSection className="py-20 md:py-28 bg-gray-100">
+      <section id="apply-cta" className="py-24 md:py-36 bg-ocean-blue text-white">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-ocean-blue mb-6">More Than Just Accommodation</h2>
-          <p className="text-lg text-gray-600 mb-16 max-w-3xl mx-auto">Become part of the vibrant Sea of Mountains community. Make friends, create memories, and feel at home.</p>
-          <div className="grid md:grid-cols-3 gap-10">{[1,2,3].map(i => (<div key={i} className="bg-white rounded-xl shadow-xl overflow-hidden group"><img src={`https://placehold.co/600x400/${i % 2 === 0 ? '005792' : '9d6a51'}/FFFFFF?text=Community+Vibe+${i}`} alt={`Student Life ${i}`} className="w-full h-56 object-cover group-hover:opacity-80 transition-opacity duration-300"/><div className="p-6"><h3 className="text-xl font-semibold text-ocean-blue mb-2">Student Gatherings</h3><p className="text-gray-600 text-sm">Regular events and activities to help you connect and unwind.</p></div></div>))}</div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-12">Your Journey Starts Here</h2>
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {applicationSteps.map((step) => (
+                    <div key={step.step} className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-xl shadow-2xl text-left relative overflow-hidden">
+                        <div className="absolute top-0 right-0 text-9xl font-black text-white/5 -mt-4 -mr-4" style={{ zIndex: 1 }}>{step.step}</div>
+                        <div className="relative" style={{ zIndex: 2 }}>
+                            <h3 className="text-sm font-semibold uppercase text-mountain-tan mb-2">Step {step.step}</h3>
+                            <h4 className="text-2xl font-bold text-white mb-4">{step.title}</h4>
+                            <p className="text-gray-200">{step.description}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4">
+                {(!user || (user && !loading && !hasApplication)) && (
+                    <Link to="/apply" className="bg-mountain-tan hover:bg-opacity-80 text-white text-xl font-semibold py-4 px-12 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Apply Online Now
+                    </Link>
+                )}
+                <a href={houseRulesPdf} download="Sea of Mountains - House Rules 2025.pdf" className="bg-white/10 hover:bg-white/20 text-white text-xl font-semibold py-4 px-12 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 inline-flex items-center">
+                    <ArrowDownTrayIcon className="h-6 w-6 mr-3" />
+                    Download House Rules
+                </a>
+            </div>
         </div>
-      </AnimatedSection>
-      <section id="apply-cta" className="py-24 md:py-36 bg-ocean-blue text-white"><div className="container mx-auto px-6 text-center"><h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Ready to Find Your Perfect Student Home?</h2><p className="text-xl text-gray-200 mb-12 max-w-2xl mx-auto">Applications for Sea of Mountains are now open. Secure your spot today and experience the best student living in Kimberley.</p>{(!user || (user && !loading && !hasApplication)) && (<Link to="/apply" className="bg-mountain-tan hover:bg-opacity-80 text-white text-xl font-semibold py-4 px-12 rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105">Apply Online Now</Link>)}</div></section>
+      </section>
     </>
   );
 }

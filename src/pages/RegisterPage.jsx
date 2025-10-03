@@ -1,15 +1,16 @@
 // FILE: src/pages/RegisterPage.jsx
-// FINAL CORRECTED VERSION: Points to the correct /registration/ API endpoint.
+// REVISED: Programmatically resets the reCAPTCHA on a failed submission attempt.
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { api } from '../context/AuthContext';
-import { ArrowRightIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import loginImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
 
 function RegisterPage() {
     const navigate = useNavigate();
+    const recaptchaRef = useRef(null); // Create a ref for the ReCAPTCHA component
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -21,6 +22,7 @@ function RegisterPage() {
     const [recaptchaToken, setRecaptchaToken] = useState(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,6 +36,8 @@ function RegisterPage() {
         if (formData.password !== formData.password2) {
             setError("Passwords do not match.");
             setIsLoading(false);
+            recaptchaRef.current.reset(); // Reset reCAPTCHA
+            setRecaptchaToken(null); // Clear token state
             return;
         }
 
@@ -44,8 +48,6 @@ function RegisterPage() {
         }
 
         try {
-            // --- THIS IS THE FIX ---
-            // The URL is now '/api/auth/registration/' which matches the backend urls.py
             const response = await api.post('/api/auth/registration/', {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
@@ -63,10 +65,12 @@ function RegisterPage() {
             if (err.response && err.response.data) {
                 const errorData = err.response.data;
                 const errorMessages = Object.values(errorData).flat();
-                setError(errorMessages[0] || 'An unknown registration error occurred.');
+                setError(errorMessages.length > 0 ? errorMessages : 'An unknown registration error occurred.');
             } else {
                 setError('An unknown error occurred. Please try again.');
             }
+            recaptchaRef.current.reset(); // Reset reCAPTCHA on API error
+            setRecaptchaToken(null); // Clear token state
         } finally {
             setIsLoading(false);
         }
@@ -105,7 +109,7 @@ function RegisterPage() {
                         </div>
                         <div>
                             <label className="block text-base font-semibold text-gray-800 mb-2" htmlFor="email">Email Address</label>
-                            <input className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition" id="email" name="email" type="email" placeholder="your@email.com" onChange={handleChange} required />
+                            <input className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition" id="email" name="email" type="email" placeholder="your@example.com" onChange={handleChange} required />
                         </div>
                         <div>
                             <label className="block text-base font-semibold text-gray-800 mb-2" htmlFor="phone_number">Phone Number</label>
@@ -113,23 +117,80 @@ function RegisterPage() {
                         </div>
                         <div>
                             <label className="block text-base font-semibold text-gray-800 mb-2" htmlFor="password">Password</label>
-                            <input className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition" id="password" name="password" type="password" placeholder="••••••••••" onChange={handleChange} required />
+                            <div className="relative">
+                                <input
+                                    className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition pr-10"
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••••"
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? (
+                                        <EyeSlashIcon className="h-5 w-5" />
+                                    ) : (
+                                        <EyeIcon className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
+                            <ul className="text-xs text-gray-500 mt-2 list-disc list-inside">
+                                <li>At least 8 characters long</li>
+                                <li>Contains at least one uppercase letter</li>
+                                <li>Contains at least one symbol (e.g., !@#$%)</li>
+                                <li>Cannot be too similar to your name or email</li>
+                            </ul>
                         </div>
                         <div>
                             <label className="block text-base font-semibold text-gray-800 mb-2" htmlFor="password2">Confirm Password</label>
-                            <input className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition" id="password2" name="password2" type="password" placeholder="••••••••••" onChange={handleChange} required />
+                            <div className="relative">
+                                <input
+                                    className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition pr-10"
+                                    id="password2"
+                                    name="password2"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••••"
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? (
+                                        <EyeSlashIcon className="h-5 w-5" />
+                                    ) : (
+                                        <EyeIcon className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                          <div className="flex justify-center">
                             <ReCAPTCHA
+                                ref={recaptchaRef} // Attach the ref here
                                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                                 onChange={(token) => setRecaptchaToken(token)}
                                 onExpired={() => setRecaptchaToken(null)}
                             />
                         </div>
                         {error && (
-                            <div className="p-4 bg-red-50 border border-red-400 text-red-600 rounded-lg flex items-center">
-                                <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                                <span>{error}</span>
+                            <div className="p-4 bg-red-50 border border-red-400 text-red-600 rounded-lg flex items-start">
+                                <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                                {Array.isArray(error) ? (
+                                    <ul className="list-disc list-inside">
+                                        {error.map((msg, index) => (
+                                            <li key={index}>{msg}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <span>{error}</span>
+                                )}
                             </div>
                         )}
                         <button

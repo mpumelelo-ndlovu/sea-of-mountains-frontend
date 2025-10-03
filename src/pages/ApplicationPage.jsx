@@ -1,5 +1,5 @@
 // FILE: src/pages/ApplicationPage.jsx
-// FINAL REVISED VERSION: Fixes the stepper layout on mobile devices.
+// REVISED: Adds conditional fields for returning residents.
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -25,25 +25,23 @@ const steps = [
 
 const ProgressBar = ({ currentStep }) => (
     <nav aria-label="Progress">
-        {/* THIS IS THE FIX: Changed to a flex layout with spacing */}
-        <ol role="list" className="flex space-x-8">
+        <ol role="list" className="flex space-x-2 sm:space-x-8 overflow-x-auto pb-4">
             {steps.map((step) => (
                 <li key={step.name} className="flex-1 min-w-[100px]">
                     {currentStep > step.id ? (
-                        // Use top border for all screen sizes for consistency
                         <div className="group flex w-full flex-col border-t-4 border-ocean-blue py-2 transition-colors">
-                            <span className="text-sm font-medium text-ocean-blue transition-colors">{`Step ${step.id}`}</span>
-                            <span className="text-sm font-medium">{step.name}</span>
+                            <span className="text-xs sm:text-sm font-medium text-ocean-blue transition-colors">{`Step ${step.id}`}</span>
+                            <span className="text-xs sm:text-sm font-medium">{step.name}</span>
                         </div>
                     ) : currentStep === step.id ? (
                         <div className="flex w-full flex-col border-t-4 border-ocean-blue py-2" aria-current="step">
-                            <span className="text-sm font-medium text-ocean-blue">{`Step ${step.id}`}</span>
-                            <span className="text-sm font-medium">{step.name}</span>
+                            <span className="text-xs sm:text-sm font-medium text-ocean-blue">{`Step ${step.id}`}</span>
+                            <span className="text-xs sm:text-sm font-medium">{step.name}</span>
                         </div>
                     ) : (
                         <div className="group flex h-full w-full flex-col border-t-4 border-gray-200 py-2 transition-colors">
-                            <span className="text-sm font-medium text-gray-500 transition-colors">{`Step ${step.id}`}</span>
-                            <span className="text-sm font-medium">{step.name}</span>
+                            <span className="text-xs sm:text-sm font-medium text-gray-500 transition-colors">{`Step ${step.id}`}</span>
+                            <span className="text-xs sm:text-sm font-medium">{step.name}</span>
                         </div>
                     )}
                 </li>
@@ -86,6 +84,7 @@ function ApplicationPage() {
     const [formData, setFormData] = useState({
         first_name: '', last_name: '', email: '', phone_number: '', id_number: '', date_of_birth: '',
         gender: '', ethnicity: '', nationality: 'South African', resided_in_2025: '',
+        previous_room_number: '', keep_same_room: false,
         address_line_1: '', city: '', postal_code: '', spu_student_number: '', course_of_study: '',
         year_of_study: '', preferred_room_type: '', floor_preference: '', preferred_move_in_date: '',
         guardian_full_name: '', guardian_relationship: '', guardian_phone_number: '', guardian_email: '',
@@ -96,7 +95,7 @@ function ApplicationPage() {
         payer_full_name: '', payer_id_number: '', payer_relationship: '', payer_phone_number: '',
         payer_email: '', payer_address: '', payer_employment_details: '', payer_monthly_income: '',
         medical_conditions: '', has_vehicle: '', vehicle_details: '', id_document: null,
-        proof_of_registration: null, proof_of_deposit: null,
+        proof_of_registration: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
@@ -160,7 +159,7 @@ function ApplicationPage() {
             processedValue = files ? files[0] : null;
         } else if (type === 'checkbox') {
             processedValue = checked;
-        } else if (name === 'has_vehicle') {
+        } else if (name === 'has_vehicle' || name === 'resided_in_2025') {
             processedValue = value === 'true';
         }
         
@@ -190,6 +189,9 @@ function ApplicationPage() {
             if (!formData.ethnicity) errors.ethnicity = 'Ethnicity is required.';
             if (!formData.nationality) errors.nationality = 'Nationality is required.';
             if (formData.resided_in_2025 === '') errors.resided_in_2025 = 'This field is required.';
+            if (formData.resided_in_2025 && !formData.previous_room_number) {
+                errors.previous_room_number = 'Please enter your previous room number.';
+            }
             if (!formData.address_line_1) errors.address_line_1 = 'Address Line 1 is required.';
             if (!formData.city) errors.city = 'City is required.';
             if (!formData.postal_code) errors.postal_code = 'Postal Code is required.';
@@ -238,7 +240,7 @@ function ApplicationPage() {
                 if (!formData.bursary_contact_phone) errors.bursary_contact_phone = 'Contact Phone is required.';
                 if (!formData.bursary_coverage_amount) errors.bursary_coverage_amount = 'Coverage Amount is required.';
                 if (!formData.bursary_confirmation_letter) errors.bursary_confirmation_letter = 'Bursary Confirmation Letter is required.';
-            } else if (formData.funding_source === 'SELF_PAYING') {
+            } else if (formData.funding_source === 'SELF_FUNDED') {
                 if (!formData.payer_full_name) errors.payer_full_name = 'Full Name is required.';
                 if (!formData.payer_id_number) errors.payer_id_number = 'ID Number is required.';
                 if (!formData.payer_relationship) errors.payer_relationship = 'Relationship to Student is required.';
@@ -283,14 +285,9 @@ function ApplicationPage() {
         setFormErrors({});
 
         const submissionData = new FormData();
-
-        if (formData.proof_of_deposit) {
-            submissionData.append('proof_of_deposit', formData.proof_of_deposit);
-        }
         
         for (const key in formData) {
-            if (key !== 'proof_of_deposit' &&
-                !key.startsWith('nsfas_') && !key.startsWith('bursary_') && !key.startsWith('payer_') &&
+            if (!key.startsWith('nsfas_') && !key.startsWith('bursary_') && !key.startsWith('payer_') &&
                 !(formData[key] instanceof File) && formData[key] !== null && formData[key] !== ''
             ) {
                 submissionData.append(key, formData[key]);
@@ -300,7 +297,6 @@ function ApplicationPage() {
         if (formData.id_document) submissionData.append('id_document', formData.id_document);
         if (formData.proof_of_registration) submissionData.append('proof_of_registration', formData.proof_of_registration);
         
-
         const fundingSource = formData.funding_source;
         if (fundingSource === 'NSFAS') {
             const nsfasData = {
@@ -322,7 +318,7 @@ function ApplicationPage() {
             if (formData.bursary_confirmation_letter) {
                 submissionData.append('bursary_confirmation_letter', formData.bursary_confirmation_letter);
             }
-        } else if (fundingSource === 'SELF_PAYING') {
+        } else if (fundingSource === 'SELF_FUNDED') {
             const payerData = {
                 full_name: formData.payer_full_name,
                 id_number: formData.payer_id_number,
@@ -396,28 +392,28 @@ function ApplicationPage() {
                         </p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg border border-white/20">
-                         <div className="flex items-center">
+                         <div className="flex items-start">
                             <InformationCircleIcon className="h-10 w-10 text-white mr-4 flex-shrink-0" />
                             <div>
-                                <h3 className="font-bold text-lg text-left">Admin Fee Notice</h3>
-                                <p className="text-sm text-gray-200 text-left">
-                                    A non-refundable admin fee of <strong>R350</strong> is required to process your application. Please ensure you upload proof of payment in the final step.
-                                </p>
+                                <h3 className="font-bold text-lg text-left">Application Notice</h3>
+                                <ul className="text-sm text-gray-200 text-left list-disc list-inside mt-2 space-y-1">
+                                    <li>At this stage, you are <strong>not</strong> required to pay the R550 admin fee.</li>
+                                    <li>Only pay the admin fee and upload proof of payment after your application has been reviewed and you receive an email confirming your provisional approval.</li>
+                                    <li>You can also check your status by logging into your dashboard.</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="py-16">
-                <div className="container mx-auto px-6 max-w-4xl">
-                    <div className="mb-12 overflow-x-auto pb-4 -mx-6 px-6">
-                        <div className="relative inline-flex justify-start md:justify-center w-full">
-                            <ProgressBar currentStep={currentStep} />
-                        </div>
+            <section className="py-12 sm:py-16">
+                <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+                    <div className="mb-12">
+                        <ProgressBar currentStep={currentStep} />
                     </div>
                     
-                    <div className="bg-white p-8 rounded-xl shadow-xl">
+                    <div className="bg-white p-6 sm:p-8 rounded-xl shadow-xl">
                         <form onSubmit={handleSubmit}>
                             {currentStep === 1 && (
                                 <FormSection title="Personal Information" icon={UserCircleIcon}>
@@ -451,11 +447,22 @@ function ApplicationPage() {
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Have you resided at Sea of Mountains in 2025? <span className="text-red-500">*</span></label>
                                         <div className="flex items-center space-x-6">
-                                            <label className="flex items-center"><input type="radio" name="resided_in_2025" value="true" checked={formData.resided_in_2025 === 'true'} onChange={handleChange} required className="h-4 w-4 text-ocean-blue focus:ring-ocean-blue border-gray-300" /><span className="ml-2 text-sm text-gray-700">Yes</span></label>
-                                            <label className="flex items-center"><input type="radio" name="resided_in_2025" value="false" checked={formData.resided_in_2025 === 'false'} onChange={handleChange} required className="h-4 w-4 text-ocean-blue focus:ring-ocean-blue border-gray-300" /><span className="ml-2 text-sm text-gray-700">No</span></label>
+                                            <label className="flex items-center"><input type="radio" name="resided_in_2025" value="true" checked={formData.resided_in_2025 === true} onChange={handleChange} required className="h-4 w-4 text-ocean-blue focus:ring-ocean-blue border-gray-300" /><span className="ml-2 text-sm text-gray-700">Yes</span></label>
+                                            <label className="flex items-center"><input type="radio" name="resided_in_2025" value="false" checked={formData.resided_in_2025 === false} onChange={handleChange} required className="h-4 w-4 text-ocean-blue focus:ring-ocean-blue border-gray-300" /><span className="ml-2 text-sm text-gray-700">No</span></label>
                                         </div>
                                         {formErrors.resided_in_2025 && <p className="mt-1 text-sm text-red-600">{formErrors.resided_in_2025}</p>}
                                     </div>
+                                    
+                                    {formData.resided_in_2025 && (
+                                        <>
+                                            <InputField label="Previous Room Number (2025)" name="previous_room_number" id="previous_room_number" required value={formData.previous_room_number} onChange={handleChange} error={formErrors.previous_room_number} />
+                                            <div className="md:col-span-2 flex items-center">
+                                                <input type="checkbox" name="keep_same_room" id="keep_same_room" checked={formData.keep_same_room} onChange={handleChange} className="h-4 w-4 text-ocean-blue focus:ring-ocean-blue border-gray-300 rounded" />
+                                                <label htmlFor="keep_same_room" className="ml-2 block text-sm text-gray-900">I would like to keep the same room for 2026, if available.</label>
+                                            </div>
+                                        </>
+                                    )}
+
                                     <InputField label="Address Line 1" name="address_line_1" id="address_line_1" required value={formData.address_line_1} onChange={handleChange} fullWidth error={formErrors.address_line_1} />
                                     <InputField label="City" name="city" id="city" required value={formData.city} onChange={handleChange} error={formErrors.city} />
                                     <InputField label="Postal Code" name="postal_code" id="postal_code" required value={formData.postal_code} onChange={handleChange} error={formErrors.postal_code} />
@@ -516,7 +523,7 @@ function ApplicationPage() {
                                         <option value="">Select Funding Source</option>
                                         <option value="NSFAS">NSFAS</option>
                                         <option value="BURSARY">Bursary</option>
-                                        <option value="SELF_PAYING">Self-Paying</option>
+                                        <option value="SELF_FUNDED">Self-Funded</option>
                                     </InputField>
 
                                     {formData.funding_source === 'NSFAS' && (
@@ -537,7 +544,7 @@ function ApplicationPage() {
                                         </>
                                     )}
 
-                                    {formData.funding_source === 'SELF_PAYING' && (
+                                    {formData.funding_source === 'SELF_FUNDED' && (
                                         <>
                                             <InputField label="Payer Full Name" name="payer_full_name" id="payer_full_name" required value={formData.payer_full_name} onChange={handleChange} error={formErrors.payer_full_name} />
                                             <InputField label="Payer ID Number" name="payer_id_number" id="payer_id_number" required value={formData.payer_id_number} onChange={handleChange} error={formErrors.payer_id_number} />
@@ -571,10 +578,9 @@ function ApplicationPage() {
 
                             {currentStep === 6 && (
                                 <FormSection title="Required Documents" icon={ArrowUpTrayIcon}>
-                                    <p className="md:col-span-2 text-gray-600">Please upload the following documents. Only PDF files are accepted.</p>
-                                    <InputField label="ID Document (PDF)" name="id_document" id="id_document" as="file" accept="application/pdf" required onChange={handleChange} error={formErrors.id_document} />
-                                    <InputField label="Proof of Registration (PDF)" name="proof_of_registration" id="proof_of_registration" as="file" accept="application/pdf" required onChange={handleChange} error={formErrors.proof_of_registration} />
-                                    <InputField label="Proof of Admin Fee Payment (PDF)" name="proof_of_deposit" id="proof_of_deposit" as="file" accept="application/pdf" onChange={handleChange} error={formErrors.proof_of_deposit} />
+                                    <p className="md:col-span-2 text-gray-600">Please upload the following documents. Only PDF, JPG, and PNG files are accepted.</p>
+                                    <InputField label="ID Document" name="id_document" id="id_document" as="file" accept="application/pdf,image/jpeg,image/png" required onChange={handleChange} error={formErrors.id_document} />
+                                    <InputField label="Proof of Registration" name="proof_of_registration" id="proof_of_registration" as="file" accept="application/pdf,image/jpeg,image/png" required onChange={handleChange} error={formErrors.proof_of_registration} />
                                 </FormSection>
                             )}
                             

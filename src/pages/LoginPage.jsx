@@ -1,17 +1,18 @@
 // FILE: src/pages/LoginPage.jsx
-// FINAL CORRECTED VERSION: Adds reCAPTCHA integration.
+// REVISED: Adds show password toggle, reCAPTCHA reset on error, and improves link visibility.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import loginImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
 
 function LoginPage() {
     const { loginUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const recaptchaRef = useRef(null); // Create a ref for the ReCAPTCHA component
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,6 +20,7 @@ function LoginPage() {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     
     useEffect(() => {
         if (location.state?.message) {
@@ -43,6 +45,8 @@ function LoginPage() {
         const result = await loginUser(email, password, recaptchaToken);
         if (!result.success) {
             setError(result.message);
+            recaptchaRef.current.reset(); // Reset reCAPTCHA on error
+            setRecaptchaToken(null); // Clear the token state
         }
         setIsLoading(false);
     };
@@ -96,19 +100,33 @@ function LoginPage() {
                             <label className="block text-base font-semibold text-gray-800 mb-2" htmlFor="password">
                                 Password
                             </label>
-                            <input
-                                className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition"
-                                id="password"
-                                type="password"
-                                placeholder="••••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    className="w-full py-3 px-4 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ocean-blue shadow-sm transition pr-10"
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? (
+                                        <EyeSlashIcon className="h-5 w-5" />
+                                    ) : (
+                                        <EyeIcon className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex justify-center">
                             <ReCAPTCHA
+                                ref={recaptchaRef} // Attach the ref
                                 sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                                 onChange={(token) => setRecaptchaToken(token)}
                                 onExpired={() => setRecaptchaToken(null)}
@@ -131,16 +149,16 @@ function LoginPage() {
                             {!isLoading && <ArrowRightIcon className="h-5 w-5 ml-2" />}
                         </button>
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mt-8">
                             <Link
                                 to="/request-password-reset"
-                                className="text-sm font-medium text-ocean-blue hover:underline"
+                                className="text-base font-semibold text-ocean-blue hover:underline"
                             >
                                 Forgot Password?
                             </Link>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-base text-gray-600">
                                 Don't have an account?{' '}
-                                <Link to="/register" className="font-semibold text-[#9d6a51] hover:underline">
+                                <Link to="/register" className="font-bold text-[#9d6a51] hover:underline">
                                     Sign up
                                 </Link>
                             </p>
@@ -153,4 +171,3 @@ function LoginPage() {
 }
 
 export default LoginPage;
-

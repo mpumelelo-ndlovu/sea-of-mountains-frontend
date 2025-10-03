@@ -1,11 +1,11 @@
 // FILE: src/pages/DashboardPage.jsx
-// FINAL REVISED VERSION: Fixes the missing import for the background image.
+// REVISED: Optimized for mobile by converting tables to a card-based layout on small screens and adjusting padding/typography.
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toastSuccess, toastError } from '../utils/toastService';
-import applicationBanner from '../assets/hero-background.jpg'; // THIS IS THE FIX
+import applicationBanner from '../assets/hero-background.jpg';
 import {
     ClockIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, DocumentTextIcon,
     BuildingOfficeIcon, BanknotesIcon, HomeModernIcon, MegaphoneIcon, ExclamationTriangleIcon,
@@ -14,14 +14,11 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 
-// Get the base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 // --- Reusable Success Modal ---
 const SuccessModal = ({ title, message, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-2xl p-8 text-center max-w-sm transform transition-all animate-fade-in-up">
+            <div className="bg-white rounded-lg shadow-2xl p-6 sm:p-8 text-center max-w-sm transform transition-all animate-fade-in-up">
                 <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
                     <CheckCircleIcon className="h-10 w-10 text-green-600" />
                 </div>
@@ -47,16 +44,16 @@ const AnnouncementModal = ({ announcements, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 transition-opacity duration-300 ease-in-out">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out scale-95 animate-fade-in-up">
-                <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg">
                     <div className="flex items-center">
-                        <MegaphoneIcon className="h-8 w-8 mr-3 text-ocean-blue" />
-                        <h2 className="text-2xl font-bold text-gray-800">Important Announcements</h2>
+                        <MegaphoneIcon className="h-7 w-7 sm:h-8 sm:w-8 mr-3 text-ocean-blue" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Important Announcements</h2>
                     </div>
                 </div>
-                <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+                <div className="p-6 sm:p-8 space-y-6 max-h-[60vh] overflow-y-auto">
                     {announcements.map((ann) => (
                         <div key={ann.id} className="border-l-4 border-mountain-tan pl-4">
-                            <h3 className="text-xl font-semibold text-gray-900">{ann.title}</h3>
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{ann.title}</h3>
                             <p className="text-xs text-gray-500 mb-2">
                                 Posted on: {new Date(ann.date_posted).toLocaleDateString()}
                             </p>
@@ -82,6 +79,7 @@ const StatusDisplay = ({ status }) => {
     const statusStyles = {
         PENDING: { icon: ClockIcon, text: 'Pending Review', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
         PROVISIONALLY_APPROVED: { icon: CheckCircleIcon, text: 'Provisionally Approved', color: 'text-green-600', bgColor: 'bg-green-100' },
+        APPROVED: { icon: ShieldCheckIcon, text: 'Approved - Application Finalized', color: 'text-blue-600', bgColor: 'bg-blue-100' },
         DECLINED: { icon: XCircleIcon, text: 'Declined', color: 'text-red-600', bgColor: 'bg-red-100' },
         WAITLISTED: { icon: QuestionMarkCircleIcon, text: 'Waitlisted', color: 'text-blue-600', bgColor: 'bg-blue-100' },
         UNDER_REVIEW: { icon: ClockIcon, text: 'Under Review', color: 'text-indigo-600', bgColor: 'bg-indigo-100' },
@@ -90,7 +88,7 @@ const StatusDisplay = ({ status }) => {
     };
     const currentStatus = statusStyles[status] || statusStyles.PENDING;
     const Icon = currentStatus.icon;
-    return <div className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-semibold ${currentStatus.bgColor} ${currentStatus.color}`}><Icon className="h-6 w-6 mr-2" /><span>{currentStatus.text}</span></div>;
+    return <div className={`inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-base sm:text-lg font-semibold ${currentStatus.bgColor} ${currentStatus.color}`}><Icon className="h-5 w-5 sm:h-6 sm:w-6 mr-2" /><span>{currentStatus.text}</span></div>;
 };
 
 const PaymentStatusBadge = ({ status }) => {
@@ -105,9 +103,9 @@ const PaymentStatusBadge = ({ status }) => {
 };
 
 const InfoCard = ({ title, value, icon: Icon }) => (
-    <div className="bg-gray-50 p-6 rounded-lg shadow-md">
+    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-md">
         <div className="flex items-center text-gray-500 mb-2"><Icon className="h-5 w-5 mr-2" /><h3 className="text-sm font-semibold uppercase tracking-wider">{title}</h3></div>
-        <p className="text-2xl font-bold text-ocean-blue">{value || 'N/A'}</p>
+        <p className="text-xl sm:text-2xl font-bold text-ocean-blue">{value || 'N/A'}</p>
     </div>
 );
 
@@ -152,22 +150,19 @@ const LeaseUploadSection = ({ tenant, refreshData, showSuccessPopup }) => {
             toastError("No lease file found to view.");
             return;
         }
-
         try {
-            new URL(tenant.signed_lease);
-            window.open(tenant.signed_lease, '_blank', 'noopener,noreferrer');
-        } catch (error) {
-            const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-            const fileURL = `${baseURL}${tenant.signed_lease}`;
+            const fileURL = new URL(tenant.signed_lease, import.meta.env.VITE_API_BASE_URL).href;
             window.open(fileURL, '_blank', 'noopener,noreferrer');
+        } catch (error) {
+            window.open(tenant.signed_lease, '_blank', 'noopener,noreferrer');
         }
     };
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Lease Agreement</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Lease Agreement</h2>
             {tenant.signed_lease ? (
-                <div className="bg-green-50 p-6 rounded-lg">
+                <div className="bg-green-50 p-4 sm:p-6 rounded-lg">
                     <div className="flex items-start">
                         <ShieldCheckIcon className="h-8 w-8 text-green-500 mr-4 flex-shrink-0" />
                         <div>
@@ -266,7 +261,6 @@ const ProofOfAdminFeeSection = ({ refreshData, showSuccessPopup }) => {
             const errorData = err.response?.data;
             let errorMessage = 'An error occurred during upload. Please try again.';
             if (errorData) {
-                // This will extract the first error message from the backend if available
                 const firstErrorKey = Object.keys(errorData)[0];
                 errorMessage = errorData[firstErrorKey][0] || errorMessage;
             }
@@ -278,10 +272,10 @@ const ProofOfAdminFeeSection = ({ refreshData, showSuccessPopup }) => {
     
     return (
         <div className="mt-8 text-left">
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg">
-                <h4 className="font-bold text-xl text-yellow-800 mb-2">Upload Proof of Admin Fee</h4>
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 sm:p-6 rounded-r-lg">
+                <h4 className="font-bold text-lg sm:text-xl text-yellow-800 mb-2">Upload Proof of Admin Fee</h4>
                 <p className="text-yellow-700 text-sm mb-4">
-                    To secure your application, a R350 admin fee is required. Please note that failure to upload proof of payment may delay the processing of your application.
+                    To finalize your application, the non-refundable <strong>R550</strong> admin fee is now required. Please upload your proof of payment to secure your spot.
                 </p>
                 <div className="bg-white p-4 rounded-md shadow-sm text-sm text-gray-700">
                     <p className="font-semibold">Banking Details:</p>
@@ -335,7 +329,7 @@ const ApplicantView = ({ application, onCancel, refreshData, showSuccessPopup })
         formData.append('document', file);
         formData.append('document_name', docName);
         try {
-            const response = await api.post('/application/upload-document/', formData, {
+            const response = await api.post('/api/application/upload-document/', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (response.status === 200) {
@@ -349,9 +343,8 @@ const ApplicantView = ({ application, onCancel, refreshData, showSuccessPopup })
             setUploading(null);
         }
     };
-
-    const shouldShowPodUpload = !application.proof_of_deposit && 
-                                !['TENANT_CREATED', 'CANCELLED', 'DECLINED'].includes(application.status);
+    
+    const shouldShowPodUpload = application.status === 'PROVISIONALLY_APPROVED' && !application.proof_of_deposit;
 
     const assignedRoomType = application.final_assigned_room?.room_type ? application.final_assigned_room.room_type.split('(')[0].trim() : 'N/A';
 
@@ -380,7 +373,19 @@ const ApplicantView = ({ application, onCancel, refreshData, showSuccessPopup })
                         <InfoCard title="Assigned Room Number" value={application.final_assigned_room?.room_number} icon={HomeModernIcon} />
                     </div>
                     <StatusInfoBox color="green">
-                        Congratulations, your application to Sea of Mountains Student Accommodation is successful! Your {assignedRoomType || 'room'} for {application.cycle?.year || 'the upcoming year'} has been reserved for you. We look forward to welcoming you into the SOMA Community. Please log in regularly to check for notifications and check your emails for important updates. For any questions, please email fatima@somaccommodation.com
+                        Congratulations! Your application has been provisionally approved. Your {assignedRoomType || 'room'} for {application.cycle?.year || 'the upcoming year'} is reserved. To finalize your placement, please pay the admin fee and upload the proof of payment below.
+                    </StatusInfoBox>
+                </div>
+            )}
+
+            {application.status === 'APPROVED' && (
+                <div>
+                    <div className="grid md:grid-cols-2 gap-6 my-6 text-left">
+                        <InfoCard title="Assigned Room Type" value={assignedRoomType} icon={BuildingOfficeIcon} />
+                        <InfoCard title="Assigned Room Number" value={application.final_assigned_room?.room_number} icon={HomeModernIcon} />
+                    </div>
+                    <StatusInfoBox color="green">
+                        Congratulations, your application to Sea of Mountains Student Accommodation is finalized and successful! Your {assignedRoomType || 'room'} for {application.cycle?.year || 'the upcoming year'} has been reserved for you. We look forward to welcoming you into the SOMA Community. Please log in regularly to check for notifications and check your emails for important updates. For any questions, please email fatima@somaccommodation.com
                     </StatusInfoBox>
                 </div>
             )}
@@ -418,9 +423,9 @@ const ApplicantView = ({ application, onCancel, refreshData, showSuccessPopup })
             
             {shouldShowPodUpload && <ProofOfAdminFeeSection refreshData={refreshData} showSuccessPopup={showSuccessPopup} />}
             
-            {application.proof_of_deposit && !['TENANT_CREATED', 'CANCELLED', 'DECLINED'].includes(application.status) && (
+            {application.proof_of_deposit && !['TENANT_CREATED', 'CANCELLED', 'DECLINED', 'APPROVED'].includes(application.status) && (
                 <StatusInfoBox color="green">
-                    Thank you. We have received your Proof of Admin Fee.
+                    Thank you. We have received your Proof of Admin Fee. Your application is now being finalized.
                 </StatusInfoBox>
             )}
 
@@ -460,31 +465,55 @@ const ActiveTenantView = ({ tenant, requests, refreshData, onDownload, isDownloa
             {requestModalOpen && <NewRequestModal closeModal={() => setRequestModalOpen(false)} refreshData={refreshData} />}
             {feedbackRequest && <FeedbackModal request={feedbackRequest} closeModal={() => setFeedbackRequest(null)} refreshData={refreshData} />}
             <div>
-                <h2 className="text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">My Tenancy Details</h2>
-                <div className="grid md:grid-cols-3 gap-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">My Tenancy Details</h2>
+                <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
                     <InfoCard title="Room Type" value={tenant.assigned_room_type} icon={BuildingOfficeIcon} />
                     <InfoCard title="Room Number" value={tenant.assigned_room} icon={HomeModernIcon} />
                     <InfoCard title="Move-in Date" value={new Date(tenant.move_in_date).toLocaleDateString()} icon={CheckCircleIcon} />
                 </div>
             </div>
             <LeaseUploadSection tenant={tenant} refreshData={refreshData} showSuccessPopup={showSuccessPopup} />
+            
+            {/* Payments Section - Now Responsive */}
             <div>
-                <h2 className="text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">My Payments</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">My Payments</h2>
                 {tenant.payments && tenant.payments.length > 0 ? (
-                    <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-                        <table className="w-full min-w-max">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">{tenant.payments.map((payment, index) => (<tr key={index}><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(payment.payment_date).toLocaleDateString()}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.description}</td><td className="px-6 py-4 whitespace-nowrap text-sm"><PaymentStatusBadge status={payment.status} /></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">R {payment.amount}</td></tr>))}</tbody>
-                        </table>
-                    </div>
+                    <>
+                        {/* Mobile Card View */}
+                        <div className="space-y-4 md:hidden">
+                            {tenant.payments.map((payment, index) => (
+                                <div key={index} className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-semibold text-gray-800">{payment.description}</p>
+                                            <p className="text-sm text-gray-500">{new Date(payment.payment_date).toLocaleDateString()}</p>
+                                        </div>
+                                        <p className="font-bold text-lg text-ocean-blue">R {payment.amount}</p>
+                                    </div>
+                                    <div className="mt-2">
+                                        <PaymentStatusBadge status={payment.status} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block bg-white rounded-lg shadow-md overflow-x-auto">
+                            <table className="w-full min-w-max">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">{tenant.payments.map((payment, index) => (<tr key={index}><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(payment.payment_date).toLocaleDateString()}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.description}</td><td className="px-6 py-4 whitespace-nowrap text-sm"><PaymentStatusBadge status={payment.status} /></td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">R {payment.amount}</td></tr>))}</tbody>
+                            </table>
+                        </div>
+                    </>
                 ) : <p className="text-gray-600">No payment history found.</p>}
+                
                 <div className={`mt-6 p-4 ${balanceContainerClass}`}>
                     <div className="flex">
                         <div className="flex-shrink-0"><BanknotesIcon className={`h-5 w-5 ${balanceIconColor}`} aria-hidden="true" /></div>
@@ -498,10 +527,29 @@ const ActiveTenantView = ({ tenant, requests, refreshData, onDownload, isDownloa
                     </button>
                 </div>
             </div>
+
+            {/* Fines & Warnings Section - Now Responsive */}
             {tenant.violations && tenant.violations.length > 0 && (
                 <div>
-                    <h2 className="text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Fines & Warnings</h2>
-                    <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Fines & Warnings</h2>
+                    {/* Mobile Card View */}
+                    <div className="space-y-4 md:hidden">
+                        {tenant.violations.map((v, index) => (
+                            <div key={index} className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{v.type}</p>
+                                        <p className="text-sm text-gray-500">{new Date(v.date_issued).toLocaleDateString()}</p>
+                                    </div>
+                                    <p className="font-bold text-lg text-red-600">{v.amount ? `R ${v.amount}` : 'N/A'}</p>
+                                </div>
+                                <p className="mt-2 text-sm text-gray-700">{v.reason}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block bg-white rounded-lg shadow-md overflow-x-auto">
                         <table className="w-full min-w-max">
                             <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th></tr></thead>
                             <tbody className="divide-y divide-gray-200">{tenant.violations.map((v, index) => (<tr key={index}><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(v.date_issued).toLocaleDateString()}</td><td className="px-6 py-4 whitespace-nowrap text-sm font-bold">{v.type}</td><td className="px-6 py-4 text-sm text-gray-500">{v.reason}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">{v.amount ? `R ${v.amount}` : 'N/A'}</td></tr>))}</tbody>
@@ -509,18 +557,40 @@ const ActiveTenantView = ({ tenant, requests, refreshData, onDownload, isDownloa
                     </div>
                 </div>
             )}
+            
+            {/* Maintenance Requests Section - Now Responsive */}
              <div>
-                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="text-3xl font-bold text-ocean-blue">My Maintenance Requests</h2>
-                    <button onClick={() => setRequestModalOpen(true)} className="flex items-center bg-ocean-blue hover:bg-opacity-80 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300"><PlusCircleIcon className="h-5 w-5 mr-2" />Submit New Request</button>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue">My Maintenance Requests</h2>
+                    <button onClick={() => setRequestModalOpen(true)} className="flex items-center bg-ocean-blue hover:bg-opacity-80 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 w-full sm:w-auto justify-center"><PlusCircleIcon className="h-5 w-5 mr-2" />Submit New Request</button>
                 </div>
-                {requests && requests.length > 0 ? (
-                    <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-                        <table className="w-full min-w-max">
-                            <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th><th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th></tr></thead>
-                            <tbody className="divide-y divide-gray-200">{requests.map((req) => (<tr key={req.id}><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(req.date_submitted).toLocaleDateString()}</td><td className="px-6 py-4 text-sm text-gray-900">{req.title}</td><td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">{req.status}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{req.date_completed ? new Date(req.date_completed).toLocaleDateString() : 'N/A'}</td><td className="px-6 py-4 whitespace-nowrap text-center text-sm">{req.status === 'COMPLETED' && req.tenant_rating === null && (<button onClick={() => setFeedbackRequest(req)} className="text-ocean-blue hover:text-blue-700 font-semibold">Leave Feedback</button>)}</td></tr>))}</tbody>
-                        </table>
-                    </div>
+                 {requests && requests.length > 0 ? (
+                    <>
+                        {/* Mobile Card View */}
+                        <div className="space-y-4 md:hidden">
+                            {requests.map((req) => (
+                                <div key={req.id} className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+                                    <p className="font-semibold text-gray-800">{req.title}</p>
+                                    <p className="text-sm text-gray-500">Submitted: {new Date(req.date_submitted).toLocaleDateString()}</p>
+                                    <p className="text-sm text-gray-500">Status: <span className="font-semibold">{req.status}</span></p>
+                                    <p className="text-sm text-gray-500">Completed: {req.date_completed ? new Date(req.date_completed).toLocaleDateString() : 'N/A'}</p>
+                                    {req.status === 'COMPLETED' && req.tenant_rating === null && (
+                                        <div className="mt-3 text-center">
+                                            <button onClick={() => setFeedbackRequest(req)} className="text-ocean-blue hover:text-blue-700 font-semibold text-sm">Leave Feedback</button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block bg-white rounded-lg shadow-md overflow-x-auto">
+                            <table className="w-full min-w-max">
+                                <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th><th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th></tr></thead>
+                                <tbody className="divide-y divide-gray-200">{requests.map((req) => (<tr key={req.id}><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(req.date_submitted).toLocaleDateString()}</td><td className="px-6 py-4 text-sm text-gray-900">{req.title}</td><td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">{req.status}</td><td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{req.date_completed ? new Date(req.date_completed).toLocaleDateString() : 'N/A'}</td><td className="px-6 py-4 whitespace-nowrap text-center text-sm">{req.status === 'COMPLETED' && req.tenant_rating === null && (<button onClick={() => setFeedbackRequest(req)} className="text-ocean-blue hover:text-blue-700 font-semibold">Leave Feedback</button>)}</td></tr>))}</tbody>
+                            </table>
+                        </div>
+                    </>
                 ) : <p className="text-gray-600">No maintenance requests found.</p>}
             </div>
         </div>
@@ -530,9 +600,9 @@ const ActiveTenantView = ({ tenant, requests, refreshData, onDownload, isDownloa
 const InactiveTenantView = ({ tenant, onDownload, isDownloading }) => {
     return (
     <div className="space-y-6">
-        <div className="text-center bg-gray-100 p-8 rounded-lg">
+        <div className="text-center bg-gray-100 p-6 sm:p-8 rounded-lg">
             <UserMinusIcon className="h-16 w-16 text-gray-400 mx-auto" />
-            <h2 className="text-3xl font-bold text-ocean-blue mt-4">Tenancy Concluded</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mt-4">Tenancy Concluded</h2>
             <p className="text-lg text-gray-700 mt-2">
                 Our records show that your tenancy concluded on{' '}
                 <span className="font-semibold">
@@ -544,7 +614,7 @@ const InactiveTenantView = ({ tenant, onDownload, isDownloading }) => {
             </p>
         </div>
         <div>
-            <h2 className="text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Final Payment History</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-ocean-blue mb-6 border-b pb-4">Final Payment History</h2>
             {tenant.payments && tenant.payments.length > 0 ? (
                 <div className="bg-white rounded-lg shadow-md overflow-x-auto">
                     <table className="w-full min-w-max">
@@ -593,8 +663,6 @@ const NewRequestModal = ({ closeModal, refreshData }) => {
         const submission = new FormData();
         Object.keys(formData).forEach(key => { if (formData[key]) { submission.append(key, formData[key]); } });
         try {
-            // --- THIS IS THE FIX ---
-            // The URL now includes the required '/api' prefix.
             const response = await api.post('/api/maintenance-requests/', submission, { headers: { 'Content-Type': 'multipart/form-data' } });
             if (response.status === 201) {
                 toastSuccess('Maintenance request submitted successfully!');
@@ -615,7 +683,7 @@ const NewRequestModal = ({ closeModal, refreshData }) => {
     const categoryChoices = [ 'PLUMBING', 'ELECTRICAL', 'HVAC', 'FURNITURE', 'APPLIANCES', 'CLEANING', 'SECURITY', 'OTHER' ];
     const priorityChoices = [ 'LOW', 'MEDIUM', 'HIGH', 'URGENT' ];
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"><div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg relative"><button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button><h2 className="text-2xl font-bold text-ocean-blue mb-6">Submit a Maintenance Request</h2><form onSubmit={handleSubmit} className="space-y-4"><input type="text" name="title" id="title" required onChange={handleChange} placeholder="e.g., Leaky tap in kitchen" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"/><textarea name="description" id="description" rows="4" required onChange={handleChange} placeholder="Please provide as much detail as possible." className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"></textarea><div className="grid grid-cols-2 gap-4"><select name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue">{categoryChoices.map(c => <option key={c} value={c}>{c.charAt(0) + c.slice(1).toLowerCase()}</option>)}</select><select name="priority" id="priority" value={formData.priority} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue">{priorityChoices.map(p => <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>)}</select></div><div><label className="block text-sm font-medium text-gray-700">Upload Photo (Optional)</label><div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div className="space-y-1 text-center"><PhotoIcon className="mx-auto h-12 w-12 text-gray-400" /><div className="flex text-sm text-gray-600"><label htmlFor="photo" className="relative cursor-pointer bg-white rounded-md font-medium text-ocean-blue hover:text-blue-700 focus-within:outline-none"><span>Upload a file</span><input id="photo" name="photo" type="file" onChange={handleChange} className="sr-only" accept="image/png, image/jpeg" /></label><p className="pl-1">or drag and drop</p></div><p className="text-xs text-gray-500">{formData.photo ? formData.photo.name : 'PNG, JPG up to 5MB'}</p></div></div></div>{requestError && <p className="text-sm text-red-600">{requestError}</p>}<div className="text-right pt-2"><button type="button" onClick={closeModal} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button><button type="submit" disabled={isSubmitting} className="bg-mountain-tan hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400">{isSubmitting ? 'Submitting...' : 'Submit Request'}</button></div></form></div></div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"><div className="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg relative"><button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button><h2 className="text-2xl font-bold text-ocean-blue mb-6">Submit a Maintenance Request</h2><form onSubmit={handleSubmit} className="space-y-4"><input type="text" name="title" id="title" required onChange={handleChange} placeholder="e.g., Leaky tap in kitchen" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"/><textarea name="description" id="description" rows="4" required onChange={handleChange} placeholder="Please provide as much detail as possible." className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"></textarea><div className="grid grid-cols-2 gap-4"><select name="category" id="category" value={formData.category} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue">{categoryChoices.map(c => <option key={c} value={c}>{c.charAt(0) + c.slice(1).toLowerCase()}</option>)}</select><select name="priority" id="priority" value={formData.priority} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue">{priorityChoices.map(p => <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>)}</select></div><div><label className="block text-sm font-medium text-gray-700">Upload Photo (Optional)</label><div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div className="space-y-1 text-center"><PhotoIcon className="mx-auto h-12 w-12 text-gray-400" /><div className="flex text-sm text-gray-600"><label htmlFor="photo" className="relative cursor-pointer bg-white rounded-md font-medium text-ocean-blue hover:text-blue-700 focus-within:outline-none"><span>Upload a file</span><input id="photo" name="photo" type="file" onChange={handleChange} className="sr-only" accept="image/png, image/jpeg" /></label><p className="pl-1">or drag and drop</p></div><p className="text-xs text-gray-500">{formData.photo ? formData.photo.name : 'PNG, JPG up to 5MB'}</p></div></div></div>{requestError && <p className="text-sm text-red-600">{requestError}</p>}<div className="text-right pt-2"><button type="button" onClick={closeModal} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button><button type="submit" disabled={isSubmitting} className="bg-mountain-tan hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400">{isSubmitting ? 'Submitting...' : 'Submit Request'}</button></div></form></div></div>
     );
 };
 
@@ -649,7 +717,7 @@ const FeedbackModal = ({ request, closeModal, refreshData }) => {
         }
     };
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"><div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg relative"><button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button><h2 className="text-2xl font-bold text-ocean-blue mb-2">Leave Feedback</h2><p className="text-sm text-gray-600 mb-6">For request: "{request.title}"</p><form onSubmit={handleSubmit} className="space-y-4"><div><label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label><div className="flex space-x-1">{[1, 2, 3, 4, 5].map((star) => (<button key={star} type="button" onClick={() => setRating(star)} className="focus:outline-none">{rating >= star ? <StarIconSolid className="h-8 w-8 text-yellow-400" /> : <StarIcon className="h-8 w-8 text-gray-300" />}</button>))}</div></div><div><label htmlFor="feedback" className="block text-sm font-medium text-gray-700">Comments (Optional)</label><textarea name="feedback" id="feedback" rows="4" onChange={(e) => setFeedback(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"></textarea></div>{feedbackError && <p className="text-sm text-red-600">{feedbackError}</p>}<div className="text-right pt-2"><button type="button" onClick={closeModal} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button><button type="submit" disabled={isSubmitting} className="bg-mountain-tan hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400">{isSubmitting ? 'Submitting...' : 'Submit Feedback'}</button></div></form></div></div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"><div className="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg relative"><button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-6 w-6" /></button><h2 className="text-2xl font-bold text-ocean-blue mb-2">Leave Feedback</h2><p className="text-sm text-gray-600 mb-6">For request: "{request.title}"</p><form onSubmit={handleSubmit} className="space-y-4"><div><label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label><div className="flex space-x-1">{[1, 2, 3, 4, 5].map((star) => (<button key={star} type="button" onClick={() => setRating(star)} className="focus:outline-none">{rating >= star ? <StarIconSolid className="h-8 w-8 text-yellow-400" /> : <StarIcon className="h-8 w-8 text-gray-300" />}</button>))}</div></div><div><label htmlFor="feedback" className="block text-sm font-medium text-gray-700">Comments (Optional)</label><textarea name="feedback" id="feedback" rows="4" onChange={(e) => setFeedback(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-ocean-blue focus:border-ocean-blue"></textarea></div>{feedbackError && <p className="text-sm text-red-600">{feedbackError}</p>}<div className="text-right pt-2"><button type="button" onClick={closeModal} className="mr-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button><button type="submit" disabled={isSubmitting} className="bg-mountain-tan hover:bg-opacity-80 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400">{isSubmitting ? 'Submitting...' : 'Submit Feedback'}</button></div></form></div></div>
     );
 };
 
@@ -657,7 +725,7 @@ const FeedbackModal = ({ request, closeModal, refreshData }) => {
 // --- Main Dashboard Page Component ---
 
 function DashboardPage() {
-    const { user, loading: authLoading, api, fetchDashboardData, dashboardData, error: authError, generateStatement } = useAuth();
+    const { user, loading: authLoading, api, fetchDashboardData, dashboardData, error: authError } = useAuth();
     const [isDownloading, setIsDownloading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [successInfo, setSuccessInfo] = useState({ show: false, title: '', message: '' });
@@ -678,9 +746,20 @@ function DashboardPage() {
     
     const handleDownloadClick = async () => {
         setIsDownloading(true);
-        const result = await generateStatement();
-        if (!result.success) {
-            toastError(result.message);
+        try {
+            const response = await api.get('/api/tenant/download-statement/', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const filename = `statement_${user.last_name}_${new Date().toISOString().split('T')[0]}.pdf`;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            toastSuccess("Statement downloaded successfully.");
+        } catch (err) {
+            toastError("Failed to download statement.");
+            console.error("Download error:", err);
         }
         setIsDownloading(false);
     };
@@ -703,7 +782,7 @@ function DashboardPage() {
     const displayStudentNumber = dashboardData?.tenant_details?.student_number || dashboardData?.application_details?.spu_student_number;
 
     const renderContent = () => {
-        if (authLoading || !dashboardData) return <div className="text-center py-10 text-gray-600">Loading your dashboard...</div>;
+        if (authLoading || !dashboardData) return <div className="text-center py-10 text-gray-600"><ArrowPathIcon className="h-8 w-8 text-gray-500 animate-spin mx-auto" /></div>;
         if (authError) return <div className="text-center py-10 bg-red-50 text-red-700 p-4 rounded-lg">{authError}</div>;
         
         if (dashboardData.is_tenant && dashboardData.tenant_details) {
@@ -747,17 +826,16 @@ function DashboardPage() {
                 />
             )}
 
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-12">
                     
                     <div className="lg:col-span-1 mb-8 lg:mb-0">
-                        {/* --- THIS IS THE FIX --- */}
-                        <div className="relative p-8 rounded-2xl shadow-lg overflow-hidden bg-ocean-blue">
+                        <div className="relative p-6 sm:p-8 rounded-2xl shadow-lg overflow-hidden bg-ocean-blue">
                              <div className="absolute inset-0">
                                 <img src={applicationBanner} alt="Abstract background" className="w-full h-full object-cover opacity-20"/>
                             </div>
                             <div className="relative">
-                                <h1 className="text-4xl md:text-5xl font-bold text-white">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
                                     <span className="font-light text-gray-200">Welcome,</span>
                                     <br/>
                                     {user?.first_name || 'Student'}!
@@ -767,7 +845,7 @@ function DashboardPage() {
                                 <div className="mt-8 border-t border-white/20 pt-6 space-y-4 text-sm">
                                     <div className="flex items-center text-gray-200">
                                         <EnvelopeIcon className="h-5 w-5 mr-3 text-white/80" />
-                                        <span>{user?.email}</span>
+                                        <span className="truncate">{user?.email}</span>
                                     </div>
                                     <div className="flex items-center text-gray-200">
                                         <PhoneIcon className="h-5 w-5 mr-3 text-white/80" />
@@ -785,7 +863,7 @@ function DashboardPage() {
                     </div>
 
                     <div className="lg:col-span-2">
-                        <div className="bg-white p-8 rounded-2xl shadow-xl">
+                        <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl">
                             {renderContent()}
                         </div>
                     </div>

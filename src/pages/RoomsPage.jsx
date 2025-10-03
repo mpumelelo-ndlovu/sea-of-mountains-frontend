@@ -1,7 +1,7 @@
 // FILE: src/pages/RoomsPage.jsx
-// FINAL REVISED VERSION: Adds the "2-Unit Single Room" while preserving the original page design.
+// REVISED: Implemented a robust, user-controlled horizontal scrolling gallery with buttons.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import roomsHeroImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
@@ -15,14 +15,37 @@ import {
   ShieldCheckIcon,
   CurrencyDollarIcon,
   ArrowPathIcon,
-  HomeModernIcon, // Added for the new room type feature
+  HomeModernIcon,
+  InformationCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
+
+// Room-specific images
+import sroom1 from '../assets/sroom1.jpg';
+import sroom2 from '../assets/sroom2.jpg';
+import sunit1 from '../assets/sunit1.jpg';
+import sunit2 from '../assets/sunit2.jpg';
+import single1 from '../assets/single1.jpg';
+import single2 from '../assets/single2.jpg';
+
+// General gallery images
+import room1 from '../assets/room1.jpg';
+import room2 from '../assets/room2.jpg';
+import room3 from '../assets/room3.jpg';
+import room4 from '../assets/room4.jpg';
+import room5 from '../assets/room5.jpg';
+import room6 from '../assets/room6.jpg';
+import room7 from '../assets/room7.jpg';
+import room8 from '../assets/room8.jpg';
+import room9 from '../assets/room9.jpg';
+
 
 const roomDetailsStructure = [
   {
     id: 'single-room',
-    name: 'The Single Room', // Renamed from Deluxe Single Room
-    apiKey: 'single', 
+    name: 'The Single Room',
+    apiKey: 'single',
     heroImage: 'https://placehold.co/1200x600/005792/FFFFFF?text=Single+Room+View',
     shortDescription: 'Your private sanctuary designed for focus and comfort, offering a premium student living experience.',
     longDescription: [
@@ -40,15 +63,14 @@ const roomDetailsStructure = [
     ],
     pricing: 'Loading price...',
     gallery: [
-      'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room+1',
-      'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room+2',
-      'https://placehold.co/600x400/005792/FFFFFF?text=Single+Room+3',
+      single1,
+      single2,
     ],
   },
   {
     id: '2-unit-single',
     name: 'The 2-Unit Single Room',
-    apiKey: '2-unit', 
+    apiKey: '2-unit',
     heroImage: 'https://placehold.co/1200x600/FFD700/000000?text=2-Unit+Single+View',
     shortDescription: 'The privacy of a single room with the social benefits of a small, two-person commune.',
     longDescription: [
@@ -66,15 +88,14 @@ const roomDetailsStructure = [
     ],
     pricing: 'Loading price...',
     gallery: [
-      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+1',
-      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+2',
-      'https://placehold.co/600x400/FFD700/000000?text=2-Unit+Room+3',
+      sunit1,
+      sunit2,
     ],
   },
   {
     id: 'sharing-room',
     name: 'The Sharing Room',
-    apiKey: 'sharing', 
+    apiKey: 'sharing',
     heroImage: 'https://placehold.co/1200x600/9D6A51/FFFFFF?text=Premium+Sharing+Room+View',
     shortDescription: 'A collaborative living space that combines comfort with affordability, perfect for the social student.',
     longDescription: [
@@ -92,11 +113,22 @@ const roomDetailsStructure = [
     ],
     pricing: 'Loading price...',
     gallery: [
-      'https://placehold.co/600x400/9D6A51/FFFFFF?text=Sharing+Room+1',
-      'https://placehold.co/600x400/9D6A51/FFFFFF?text=Sharing+Room+2',
-      'https://placehold.co/600x400/9D6A51/FFFFFF?text=Sharing+Room+3',
+      sroom1,
+      sroom2,
     ],
   },
+];
+
+const galleryImages = [
+    room1,
+    room2,
+    room3,
+    room4,
+    room5,
+    room6,
+    room7,
+    room8,
+    room9,
 ];
 
 const RoomsPage = () => {
@@ -104,6 +136,17 @@ const RoomsPage = () => {
   const [roomData, setRoomData] = useState(roomDetailsStructure);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const galleryRef = useRef(null);
+
+  const scrollGallery = (direction) => {
+    if (galleryRef.current) {
+        const scrollAmount = galleryRef.current.offsetWidth * 0.8;
+        galleryRef.current.scrollBy({
+            left: direction === 'right' ? scrollAmount : -scrollAmount,
+            behavior: 'smooth',
+        });
+    }
+  };
 
   useEffect(() => {
     const fetchRoomPrices = async () => {
@@ -187,14 +230,29 @@ const RoomsPage = () => {
                   <div className="mt-8 p-4 bg-ocean-blue/10 rounded-lg text-center">
                     <p className="text-lg font-semibold text-ocean-blue">{room.pricing}</p>
                   </div>
+                  <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 text-sm">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <InformationCircleIcon className="h-5 w-5 text-yellow-400 mr-2" />
+                        </div>
+                        <div>
+                            A once-off, non-refundable admin fee of <strong>R550</strong> is required upon approval of your application.
+                        </div>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 order-first lg:order-none">
-                  {room.gallery.map((imgSrc, i) => (
-                    <div key={i} className={i === 0 ? 'col-span-2' : ''}>
-                      <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"/>
+                <div className="order-first lg:order-none">
+                    <div className="grid grid-cols-2 gap-4">
+                        {room.gallery.map((imgSrc, i) => (
+                            <div key={i} className="aspect-w-1 aspect-h-1">
+                            <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"/>
+                            </div>
+                        ))}
                     </div>
-                  ))}
+                    <div className="mt-3 text-xs text-gray-700 bg-yellow-100 p-3 rounded-md border border-yellow-200">
+                        <strong>Please note:</strong> These photos were taken in the rooms of current SOMA residents. Personal items, décor, and any items not listed on the <Link to="/amenities" className="font-semibold underline hover:text-ocean-blue">Amenities page</Link> are not included with the room.
+                    </div>
                 </div>
 
               </div>
@@ -202,6 +260,31 @@ const RoomsPage = () => {
           </section>
         ))
       )}
+
+    <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-ocean-blue mb-12 text-center">Our Residence in Pictures</h2>
+            <div className="relative">
+                <div ref={galleryRef} className="flex overflow-x-auto space-x-6 pb-4 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {galleryImages.map((img, index) => (
+                        <div key={index} className="flex-shrink-0 w-80 h-56 rounded-lg shadow-lg overflow-hidden group snap-center">
+                            <img 
+                                src={img} 
+                                alt={`Gallery image ${index + 1}`} 
+                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300 ease-in-out"
+                            />
+                        </div>
+                    ))}
+                </div>
+                <button onClick={() => scrollGallery('left')} className="absolute top-1/2 left-0 -translate-y-1/2 bg-white/50 hover:bg-white p-2 rounded-full shadow-md z-10 transition-colors">
+                    <ChevronLeftIcon className="h-6 w-6 text-ocean-blue" />
+                </button>
+                <button onClick={() => scrollGallery('right')} className="absolute top-1/2 right-0 -translate-y-1/2 bg-white/50 hover:bg-white p-2 rounded-full shadow-md z-10 transition-colors">
+                    <ChevronRightIcon className="h-6 w-6 text-ocean-blue" />
+                </button>
+            </div>
+        </div>
+      </section>
 
       <section className="py-16 md:py-24 bg-ocean-blue text-white text-center">
         <div className="container mx-auto px-6">
