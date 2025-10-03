@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toastSuccess, toastError } from '../utils/toastService';
-import applicationBanner from '../assets/hero-background.jpg';
+import applicationBanner from '../assets/hero-background.webp';
 import {
     ClockIcon, CheckCircleIcon, XCircleIcon, QuestionMarkCircleIcon, DocumentTextIcon,
     BuildingOfficeIcon, BanknotesIcon, HomeModernIcon, MegaphoneIcon, ExclamationTriangleIcon,

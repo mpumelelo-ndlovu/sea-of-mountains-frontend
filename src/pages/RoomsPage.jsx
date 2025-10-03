@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import roomsHeroImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
+import roomsHeroImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.webp';
 import {
   UsersIcon,
   UserIcon,
@@ -22,23 +22,23 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Room-specific images
-import sroom1 from '../assets/sroom1.jpg';
-import sroom2 from '../assets/sroom2.jpg';
-import sunit1 from '../assets/sunit1.jpg';
-import sunit2 from '../assets/sunit2.jpg';
-import single1 from '../assets/single1.jpg';
-import single2 from '../assets/single2.jpg';
+import sroom1 from '../assets/sroom1.webp';
+import sroom2 from '../assets/sroom2.webp';
+import sunit1 from '../assets/sunit1.webp';
+import sunit2 from '../assets/sunit2.webp';
+import single1 from '../assets/single1.webp';
+import single2 from '../assets/single2.webp';
 
 // General gallery images
-import room1 from '../assets/room1.jpg';
-import room2 from '../assets/room2.jpg';
-import room3 from '../assets/room3.jpg';
-import room4 from '../assets/room4.jpg';
-import room5 from '../assets/room5.jpg';
-import room6 from '../assets/room6.jpg';
-import room7 from '../assets/room7.jpg';
-import room8 from '../assets/room8.jpg';
-import room9 from '../assets/room9.jpg';
+import room1 from '../assets/room1.webp';
+import room2 from '../assets/room2.webp';
+import room3 from '../assets/room3.webp';
+import room4 from '../assets/room4.webp';
+import room5 from '../assets/room5.webp';
+import room6 from '../assets/room6.webp';
+import room7 from '../assets/room7.webp';
+import room8 from '../assets/room8.webp';
+import room9 from '../assets/room9.webp';
 
 
 const roomDetailsStructure = [

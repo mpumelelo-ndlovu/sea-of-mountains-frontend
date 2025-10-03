@@ -13,9 +13,9 @@ import AnimatedSection from '../components/AnimatedSection';
 import GradientText from '../components/GradientText';
 import RotatingText from '../components/RotatingText';
 import houseRulesPdf from '../assets/sea-of-mountains-rules-2025.pdf';
-import sharingRoomImage from '../assets/sroom1.jpg'; 
-import singleRoomImage from '../assets/single1.jpg';
-import sunitRoomImage from '../assets/sunit1.jpg';
+import sharingRoomImage from '../assets/sroom1.webp'; 
+import singleRoomImage from '../assets/single1.webp';
+import sunitRoomImage from '../assets/sunit1.webp';
 
 const keyBenefits = [
   { id: 1, Icon: MapPinIcon, title: 'Prime Location', description: 'Perfectly situated for Sol Plaatje University students, with accommodation situated directly on-campus.' },

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../context/AuthContext'; // <-- THE FIX
 import { EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import loginImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.jpg';
+import loginImage from '../assets/RNI-Films-IMG-47FBDCF7-FF4C-4598-A9E2-CE291410A47F.webp';
 
 function RequestPasswordResetPage() {
     const [email, setEmail] = useState('');

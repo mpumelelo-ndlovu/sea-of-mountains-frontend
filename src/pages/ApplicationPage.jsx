@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import InputField from '../components/InputField.jsx';
-import applicationBanner from '../assets/hero-background.jpg';
+import applicationBanner from '../assets/hero-background.webp';
 import {
     DocumentTextIcon, UserCircleIcon, AcademicCapIcon,
     UsersIcon, BanknotesIcon, HeartIcon, ArrowUpTrayIcon,
