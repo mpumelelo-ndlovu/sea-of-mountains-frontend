@@ -126,7 +126,7 @@ function HomePage() {
               const roomCard = (
                 <div className="bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden group flex flex-col h-full">
                   <div className="relative h-64">
-                    <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"/>
+                    <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                   </div>
                   <div className="p-8 flex flex-col flex-grow">

@@ -182,7 +182,7 @@ const RoomsPage = () => {
 
       <section className="relative h-96 flex items-center justify-center text-white">
         <div className="absolute inset-0">
-          <img src={roomsHeroImage} alt="Comfortable and modern student rooms" className="w-full h-full object-cover" />
+          <img src={roomsHeroImage} alt="Comfortable and modern student rooms" className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-ocean-blue/50"></div>
         </div>
         <div className="relative z-10 text-center p-8 bg-black/20 backdrop-blur-sm rounded-xl border border-white/10">
@@ -246,7 +246,7 @@ const RoomsPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {room.gallery.map((imgSrc, i) => (
                             <div key={i} className="aspect-w-1 aspect-h-1">
-                            <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"/>
+                            <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" loading="lazy" />
                             </div>
                         ))}
                     </div>
@@ -272,6 +272,7 @@ const RoomsPage = () => {
                                 src={img} 
                                 alt={`Gallery image ${index + 1}`} 
                                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300 ease-in-out"
+                                loading="lazy"
                             />
                         </div>
                     ))}

@@ -83,6 +83,7 @@ function RegisterPage() {
                     src={loginImage}
                     alt="Sea of Mountains accommodation"
                     className="w-full h-full object-cover"
+                    loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-8">
                     <div className="text-center text-white">
