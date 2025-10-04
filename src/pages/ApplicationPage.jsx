@@ -127,12 +127,33 @@ function ApplicationPage() {
             setAreRoomsLoading(true);
             try {
                 const response = await api.get('/api/room-types/');
-                if (response.status === 200) setRoomTypes(response.data);
-            } catch (error) { console.error("Error fetching room types:", error);
-            } finally { setAreRoomsLoading(false); }
+                if (response.status === 200) {
+                    console.log('Room types response:', response.data); // Debugging line added
+                    
+                    let data = response.data;
+                    
+                    // Logic to handle wrapped response (e.g., Django REST Framework ListAPIView response)
+                    if (data && data.results && Array.isArray(data.results)) {
+                        data = data.results;
+                    } else if (data && data.room_types && Array.isArray(data.room_types)) {
+                        data = data.room_types;
+                    }
+                    
+                    if (Array.isArray(data)) {
+                        setRoomTypes(data);
+                    } else {
+                        console.error('API response data structure for room types is unexpected:', data);
+                        setRoomTypes([]);
+                    }
+                }
+            } catch (error) { 
+                console.error("Error fetching room types:", error);
+            } finally { 
+                setAreRoomsLoading(false); 
+            }
         };
         fetchRoomTypes();
-    }, [api]);
+    }, [api]); // FIXED: Logic updated to handle various API response structures
 
     useEffect(() => {
         if (formData.nationality === 'South African' && /^\d{13}$/.test(formData.id_number)) {
