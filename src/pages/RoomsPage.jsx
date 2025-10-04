@@ -29,18 +29,6 @@ import sunit2 from '../assets/sunit2.webp';
 import single1 from '../assets/single1.webp';
 import single2 from '../assets/single2.webp';
 
-// General gallery images
-import room1 from '../assets/room1.webp';
-import room2 from '../assets/room2.webp';
-import room3 from '../assets/room3.webp';
-import room4 from '../assets/room4.webp';
-import room5 from '../assets/room5.webp';
-import room6 from '../assets/room6.webp';
-import room7 from '../assets/room7.webp';
-import room8 from '../assets/room8.webp';
-import room9 from '../assets/room9.webp';
-
-
 const roomDetailsStructure = [
   {
     id: 'single-room',
@@ -119,40 +107,24 @@ const roomDetailsStructure = [
   },
 ];
 
-const galleryImages = [
-    room1,
-    room2,
-    room3,
-    room4,
-    room5,
-    room6,
-    room7,
-    room8,
-    room9,
-];
-
 const RoomsPage = () => {
   const { api } = useAuth();
   const [roomData, setRoomData] = useState(roomDetailsStructure);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const galleryRef = useRef(null);
-
-  const scrollGallery = (direction) => {
-    if (galleryRef.current) {
-        const scrollAmount = galleryRef.current.offsetWidth * 0.8;
-        galleryRef.current.scrollBy({
-            left: direction === 'right' ? scrollAmount : -scrollAmount,
-            behavior: 'smooth',
-        });
-    }
-  };
 
   useEffect(() => {
     const fetchRoomPrices = async () => {
       try {
         const response = await api.get('/api/room-types/');
-        const apiRoomTypes = response.data;
+        // --- THIS IS THE FIX ---
+        // The API returns a paginated object, so we need to access the .results array
+        const apiRoomTypes = response.data.results; 
+
+        if (!Array.isArray(apiRoomTypes)) {
+            throw new TypeError("API response for room types is not an array.");
+        }
+        // --- END OF FIX ---
 
         const updatedRoomDetails = roomDetailsStructure.map(room => {
           const apiRoom = apiRoomTypes.find(apiRoom => apiRoom.name.toLowerCase().includes(room.apiKey));
@@ -182,7 +154,7 @@ const RoomsPage = () => {
 
       <section className="relative h-96 flex items-center justify-center text-white">
         <div className="absolute inset-0">
-          <img src={roomsHeroImage} alt="Comfortable and modern student rooms" className="w-full h-full object-cover" loading="lazy" />
+          <img src={roomsHeroImage} alt="Comfortable and modern student rooms" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-ocean-blue/50"></div>
         </div>
         <div className="relative z-10 text-center p-8 bg-black/20 backdrop-blur-sm rounded-xl border border-white/10">
@@ -246,7 +218,7 @@ const RoomsPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {room.gallery.map((imgSrc, i) => (
                             <div key={i} className="aspect-w-1 aspect-h-1">
-                            <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" loading="lazy" />
+                            <img src={imgSrc} alt={`${room.name} gallery image ${i + 1}`} className="w-full h-full object-cover rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
                             </div>
                         ))}
                     </div>
@@ -260,32 +232,6 @@ const RoomsPage = () => {
           </section>
         ))
       )}
-
-    <section className="py-16 md:py-24 bg-white">
-        <div className="container mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-ocean-blue mb-12 text-center">Our Residence in Pictures</h2>
-            <div className="relative">
-                <div ref={galleryRef} className="flex overflow-x-auto space-x-6 pb-4 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    {galleryImages.map((img, index) => (
-                        <div key={index} className="flex-shrink-0 w-80 h-56 rounded-lg shadow-lg overflow-hidden group snap-center">
-                            <img 
-                                src={img} 
-                                alt={`Gallery image ${index + 1}`} 
-                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300 ease-in-out"
-                                loading="lazy"
-                            />
-                        </div>
-                    ))}
-                </div>
-                <button onClick={() => scrollGallery('left')} className="absolute top-1/2 left-0 -translate-y-1/2 bg-white/50 hover:bg-white p-2 rounded-full shadow-md z-10 transition-colors">
-                    <ChevronLeftIcon className="h-6 w-6 text-ocean-blue" />
-                </button>
-                <button onClick={() => scrollGallery('right')} className="absolute top-1/2 right-0 -translate-y-1/2 bg-white/50 hover:bg-white p-2 rounded-full shadow-md z-10 transition-colors">
-                    <ChevronRightIcon className="h-6 w-6 text-ocean-blue" />
-                </button>
-            </div>
-        </div>
-      </section>
 
       <section className="py-16 md:py-24 bg-ocean-blue text-white text-center">
         <div className="container mx-auto px-6">
