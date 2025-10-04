@@ -1,7 +1,7 @@
 // FILE: src/App.jsx
-// REVISED: Updated footer contact information and design credit.
+// REVISED: Implemented React.lazy and Suspense for code splitting on heavy pages.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -14,20 +14,35 @@ import {
   Bars3Icon, XMarkIcon, ArrowPathIcon,
   HomeIcon, InformationCircleIcon, BuildingLibraryIcon, PhoneIcon, ArrowRightOnRectangleIcon, UserCircleIcon, DocumentTextIcon, ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
+
+// Lazy load heavy pages for code splitting
+const ApplicationPage = lazy(() => import('./pages/ApplicationPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const RoomsPage = lazy(() => import('./pages/RoomsPage'));
+
+// Direct imports for non-lazy pages
 import HomePage from './pages/HomePage';
 import AboutUs from './pages/AboutUs';
-import RoomsPage from './pages/RoomsPage';
 import AmenitiesPage from './pages/AmenitiesPage';
-import ApplicationPage from './pages/ApplicationPage';
 import ContactPage from './pages/ContactPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
 import RequestPasswordResetPage from './pages/RequestPasswordResetPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SecurityPolicyPage from './pages/SecurityPolicyPage';
+
+// Loading component for Suspense
+const PageLoader = () => (
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="text-center">
+            <img src={logo} alt="Sea of Mountains Logo" className="h-20 w-auto mx-auto mb-4 animate-pulse" />
+            <ArrowPathIcon className="h-8 w-8 text-gray-500 animate-spin mx-auto" />
+        </div>
+    </div>
+);
+
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -36,7 +51,18 @@ function ScrollToTop() {
 }
 
 function App() {
-  return (<BrowserRouter><AuthProvider><AppContent /></AuthProvider></BrowserRouter>);
+  // Wrapping with ErrorBoundary is usually done here, assuming ErrorBoundary is defined elsewhere
+  // Since the original code didn't define ErrorBoundary, I'm maintaining the original structure but including the provided App wrapper logic.
+  return (
+    // Assuming ErrorBoundary wraps the BrowserRouter externally or is added here based on your prompt's intent:
+    // <ErrorBoundary> 
+      <BrowserRouter>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </BrowserRouter>
+    // </ErrorBoundary>
+  );
 }
 
 function AppContent() {
@@ -69,14 +95,7 @@ function AppContent() {
   ];
 
   if (loading) {
-    return (
-         <div className="flex justify-center items-center h-screen bg-gray-100">
-             <div className="text-center">
-                 <img src={logo} alt="Sea of Mountains Logo" className="h-20 w-auto mx-auto mb-4 animate-pulse" />
-                 <ArrowPathIcon className="h-8 w-8 text-gray-500 animate-spin mx-auto" />
-             </div>
-         </div>
-    );
+    return <PageLoader />;
   }
   
   return (
@@ -132,24 +151,32 @@ function AppContent() {
           </div>
         </div>
         <main className="flex-grow pt-20">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/rooms" element={<RoomsPage />} />
-            <Route path="/amenities" element={<AmenitiesPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
-            <Route path="/reset-password/:uidb64/:token/" element={<ResetPasswordPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/security-policy" element={<SecurityPolicyPage />} />
-            <Route path="/apply" element={<ApplicationRouteGuard><ApplicationPage /></ApplicationRouteGuard>} />
-            <Route path="/dashboard" element={<ProtectedRoute />}>
-              <Route index element={<DashboardPage />} />
-            </Route>
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/rooms" element={<RoomsPage />} />
+              <Route path="/amenities" element={<AmenitiesPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/request-password-reset" element={<RequestPasswordResetPage />} />
+              <Route path="/reset-password/:uidb64/:token/" element={<ResetPasswordPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/security-policy" element={<SecurityPolicyPage />} />
+              <Route path="/apply" element={
+                <ApplicationRouteGuard>
+                  <ApplicationPage />
+                </ApplicationRouteGuard>
+              } />
+              <Route path="/dashboard" element={<ProtectedRoute />}>
+                <Route index element={
+                  <DashboardPage />
+                } />
+              </Route>
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
         </main>
         <footer className="bg-gray-900 text-gray-400 py-16">
           <div className="container mx-auto px-6">

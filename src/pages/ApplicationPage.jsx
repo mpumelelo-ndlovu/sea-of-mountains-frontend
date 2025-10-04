@@ -1,7 +1,7 @@
 // FILE: src/pages/ApplicationPage.jsx
-// REVISED: Adds conditional fields for returning residents.
+// FIXED: Adds auto-scroll to form section when changing steps
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import InputField from '../components/InputField.jsx';
@@ -78,6 +78,7 @@ const SuccessModal = ({ message }) => (
 function ApplicationPage() {
     const { user, api, fetchDashboardData } = useAuth();
     const navigate = useNavigate();
+    const formSectionRef = useRef(null);
     const [currentStep, setCurrentStep] = useState(1);
     const [roomTypes, setRoomTypes] = useState([]);
     const [areRoomsLoading, setAreRoomsLoading] = useState(true);
@@ -101,6 +102,16 @@ function ApplicationPage() {
     const [submitStatus, setSubmitStatus] = useState(null);
     const [submitMessage, setSubmitMessage] = useState('');
     const [formErrors, setFormErrors] = useState({});
+
+    // Scroll to form section when step changes
+    useEffect(() => {
+        if (formSectionRef.current) {
+            formSectionRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, [currentStep]);
 
     useEffect(() => {
         if (user) {
@@ -407,7 +418,7 @@ function ApplicationPage() {
                 </div>
             </section>
 
-            <section className="py-12 sm:py-16">
+            <section ref={formSectionRef} className="py-12 sm:py-16">
                 <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
                     <div className="mb-12">
                         <ProgressBar currentStep={currentStep} />
@@ -488,7 +499,7 @@ function ApplicationPage() {
                                         {areRoomsLoading ? (
                                             <option value="" disabled>Loading room types...</option>
                                         ) : (
-                                            roomTypes.map(room => (
+                                            Array.isArray(roomTypes) && roomTypes.map(room => (
                                                 <option key={room.id} value={room.id}>{room.name} (R{room.monthly_rate}/month)</option>
                                             ))
                                         )}

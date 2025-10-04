@@ -1,3 +1,4 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -7,17 +8,31 @@ export default defineConfig({
   server: {
     host: 'localhost',
     port: 5173,
-    // This section ensures the HMR connection works correctly through ngrok
-    hmr: {
-      protocol: 'wss', // Use secure WebSocket protocol
-      host: '4da6fc82e172.ngrok-free.app', // Your ngrok hostname
-    },
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000', // Your Django server's address
+        target: process.env.VITE_API_URL || 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
       },
     },
+  },
+  build: {
+    // Optimize build
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@heroicons/react', 'react-hot-toast'],
+        },
+      },
+    },
+    // Enable source maps for production debugging
+    sourcemap: process.env.NODE_ENV === 'development',
+    // Use esbuild for minification (built-in, no extra dependencies)
+    minify: 'esbuild',
+    target: 'es2015',
+  },
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 });
